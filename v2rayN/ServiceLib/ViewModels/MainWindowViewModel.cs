@@ -245,7 +245,7 @@ public class MainWindowViewModel : MyReactiveObject
 
     #region Actions
 
-    private void UpdateHandler(bool notify, string msg)
+    private async Task UpdateHandler(bool notify, string msg)
     {
         NoticeManager.Instance.SendMessage(msg);
         if (notify)
@@ -254,7 +254,7 @@ public class MainWindowViewModel : MyReactiveObject
         }
     }
 
-    private void UpdateTaskHandler(bool success, string msg)
+    private async Task UpdateTaskHandler(bool success, string msg)
     {
         NoticeManager.Instance.SendMessageEx(msg);
         if (success)
@@ -263,7 +263,7 @@ public class MainWindowViewModel : MyReactiveObject
             RefreshServers();
             if (indexIdOld != _config.IndexId)
             {
-                _ = Reload();
+                await Reload();
             }
             if (_config.UiItem.EnableAutoAdjustMainLvColWidth)
             {
@@ -272,13 +272,13 @@ public class MainWindowViewModel : MyReactiveObject
         }
     }
 
-    private void UpdateStatisticsHandler(ServerSpeedItem update)
+    private async Task UpdateStatisticsHandler(ServerSpeedItem update)
     {
         if (!_config.UiItem.ShowInTaskbar)
         {
             return;
         }
-        _updateView?.Invoke(EViewAction.DispatcherStatistics, update);
+        await _updateView?.Invoke(EViewAction.DispatcherStatistics, update);
     }
 
     public void SetStatisticsResult(ServerSpeedItem update)
@@ -596,7 +596,9 @@ public class MainWindowViewModel : MyReactiveObject
             Locator.Current.GetService<ClashProxiesViewModel>()?.ProxiesReload();
         }
         else
-        { TabMainSelectedIndex = 0; }
+        {
+            TabMainSelectedIndex = 0;
+        }
     }
 
     private async Task LoadCore()
@@ -631,7 +633,7 @@ public class MainWindowViewModel : MyReactiveObject
         Locator.Current.GetService<StatusBarViewModel>()?.RefreshRoutingsMenu();
 
         await ConfigHandler.SaveConfig(_config);
-        await new UpdateService().UpdateGeoFileAll(_config, UpdateHandler);
+        await new UpdateService().UpdateGeoFileAll(_config, UpdateTaskHandler);
         await Reload();
     }
 
