@@ -1,5 +1,3 @@
-using System.Reactive;
-
 namespace ServiceLib.Manager;
 
 public sealed class AppManager
@@ -10,7 +8,6 @@ public sealed class AppManager
     private Config _config;
     private int? _statePort;
     private int? _statePort2;
-    private Job? _processJob;
     public static AppManager Instance => _instance.Value;
     public Config Config => _config;
 
@@ -136,21 +133,6 @@ public sealed class AppManager
     {
         var localPort = _config.Inbound.FirstOrDefault(t => t.Protocol == nameof(EInboundProtocol.socks))?.LocalPort ?? 10808;
         return localPort + (int)protocol;
-    }
-
-    public void AddProcess(nint processHandle)
-    {
-        if (Utils.IsWindows())
-        {
-            _processJob ??= new();
-            try
-            {
-                _processJob?.AddProcess(processHandle);
-            }
-            catch
-            {
-            }
-        }
     }
 
     #endregion Config
