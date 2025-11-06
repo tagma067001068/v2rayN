@@ -110,7 +110,7 @@ public class ProfilesViewModel : MyReactiveObject
         //servers delete
         EditServerCmd = ReactiveCommand.CreateFromTask(async () =>
         {
-            await EditServerAsync(EConfigType.Custom);
+            await EditServerAsync();
         }, canEditRemove);
         RemoveServerCmd = ReactiveCommand.CreateFromTask(async () =>
         {
@@ -300,14 +300,14 @@ public class ProfilesViewModel : MyReactiveObject
 
         if (result.Delay.IsNotEmpty())
         {
-            int.TryParse(result.Delay, out var temp);
-            item.Delay = temp;
+            item.Delay = result.Delay.ToInt();
             item.DelayVal = result.Delay ?? string.Empty;
         }
         if (result.Speed.IsNotEmpty())
         {
             item.SpeedVal = result.Speed ?? string.Empty;
         }
+        await Task.CompletedTask;
     }
 
     public async Task UpdateStatistics(ServerSpeedItem update)
@@ -333,6 +333,7 @@ public class ProfilesViewModel : MyReactiveObject
         catch
         {
         }
+        await Task.CompletedTask;
     }
 
     #endregion Actions
@@ -487,7 +488,7 @@ public class ProfilesViewModel : MyReactiveObject
         return lstSelected;
     }
 
-    public async Task EditServerAsync(EConfigType eConfigType)
+    public async Task EditServerAsync()
     {
         if (string.IsNullOrEmpty(SelectedProfile?.IndexId))
         {
@@ -499,7 +500,7 @@ public class ProfilesViewModel : MyReactiveObject
             NoticeManager.Instance.Enqueue(ResUI.PleaseSelectServer);
             return;
         }
-        eConfigType = item.ConfigType;
+        var eConfigType = item.ConfigType;
 
         bool? ret = false;
         if (eConfigType == EConfigType.Custom)
@@ -658,7 +659,7 @@ public class ProfilesViewModel : MyReactiveObject
         }
 
         _dicHeaderSort.TryAdd(colName, true);
-        _dicHeaderSort.TryGetValue(colName, out bool asc);
+        _dicHeaderSort.TryGetValue(colName, out var asc);
         if (await ConfigHandler.SortServers(_config, _config.SubIndexId, colName, asc) != 0)
         {
             return;
@@ -753,6 +754,7 @@ public class ProfilesViewModel : MyReactiveObject
                 _ = SetSpeedTestResult(result);
                 return Disposable.Empty;
             });
+            await Task.CompletedTask;
         });
         _speedtestService?.RunLoop(actionType, lstSelected);
     }

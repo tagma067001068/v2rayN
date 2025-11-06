@@ -6,9 +6,9 @@ public partial class AddGroupServerWindow
     {
         InitializeComponent();
 
-        this.Owner = Application.Current.MainWindow;
-        this.Loaded += Window_Loaded;
-        this.PreviewKeyDown += AddGroupServerWindow_PreviewKeyDown;
+        Owner = Application.Current.MainWindow;
+        Loaded += Window_Loaded;
+        PreviewKeyDown += AddGroupServerWindow_PreviewKeyDown;
         lstChild.SelectionChanged += LstChild_SelectionChanged;
         menuSelectAllChild.Click += MenuSelectAllChild_Click;
 
@@ -27,11 +27,11 @@ public partial class AddGroupServerWindow
         switch (profileItem.ConfigType)
         {
             case EConfigType.PolicyGroup:
-                this.Title = ResUI.TbConfigTypePolicyGroup;
+                Title = ResUI.TbConfigTypePolicyGroup;
                 break;
 
             case EConfigType.ProxyChain:
-                this.Title = ResUI.TbConfigTypeProxyChain;
+                Title = ResUI.TbConfigTypeProxyChain;
                 gridPolicyGroup.Visibility = Visibility.Collapsed;
                 break;
         }
@@ -41,6 +41,9 @@ public partial class AddGroupServerWindow
             this.Bind(ViewModel, vm => vm.SelectedSource.Remarks, v => v.txtRemarks.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.CoreType, v => v.cmbCoreType.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.PolicyGroupType, v => v.cmbPolicyGroupType.Text).DisposeWith(disposables);
+            this.OneWayBind(ViewModel, vm => vm.SubItems, v => v.cmbSubChildItems.ItemsSource).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SelectedSubItem, v => v.cmbSubChildItems.SelectedItem).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.Filter, v => v.txtFilter.Text).DisposeWith(disposables);
 
             this.OneWayBind(ViewModel, vm => vm.ChildItemsObs, v => v.lstChild.ItemsSource).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.SelectedChild, v => v.lstChild.SelectedItem).DisposeWith(disposables);
@@ -61,7 +64,7 @@ public partial class AddGroupServerWindow
         switch (action)
         {
             case EViewAction.CloseWindow:
-                this.DialogResult = true;
+                DialogResult = true;
                 break;
         }
         return await Task.FromResult(true);
@@ -75,7 +78,10 @@ public partial class AddGroupServerWindow
     private void AddGroupServerWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (!lstChild.IsKeyboardFocusWithin)
+        {
             return;
+        }
+
         if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
         {
             if (e.Key == Key.A)

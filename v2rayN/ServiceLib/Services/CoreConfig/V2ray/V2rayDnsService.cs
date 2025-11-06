@@ -189,7 +189,10 @@ public partial class CoreConfigV2rayService
                 foreach (var domain in item.Domain)
                 {
                     if (domain.StartsWith('#'))
+                    {
                         continue;
+                    }
+
                     var normalizedDomain = domain.Replace(Global.RoutingRuleComma, ",");
 
                     if (item.OutboundTag == Global.DirectTag)
@@ -347,8 +350,8 @@ public partial class CoreConfigV2rayService
             if (obj is null)
             {
                 List<string> servers = [];
-                string[] arrDNS = normalDNS.Split(',');
-                foreach (string str in arrDNS)
+                var arrDNS = normalDNS.Split(',');
+                foreach (var str in arrDNS)
                 {
                     servers.Add(str);
                 }
@@ -368,7 +371,10 @@ public partial class CoreConfigV2rayService
                         foreach (var host in systemHosts)
                         {
                             if (normalHost1[host.Key] != null)
+                            {
                                 continue;
+                            }
+
                             normalHost1[host.Key] = host.Value;
                         }
                     }

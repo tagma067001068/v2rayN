@@ -245,6 +245,13 @@ public partial class CoreConfigV2rayService
             var host = node.RequestHost.TrimEx();
             var path = node.Path.TrimEx();
             var sni = node.Sni.TrimEx();
+            var certs = node.Cert
+                ?.Split("-----END CERTIFICATE-----", StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.TrimEx())
+                .Where(s => !s.IsNullOrEmpty())
+                .Select(s => s + "\n-----END CERTIFICATE-----")
+                .Select(s => s.Replace("\r\n", "\n"))
+                .ToList() ?? new();
             var useragent = "";
             if (!_config.CoreBasicItem.DefUserAgent.IsNullOrEmpty())
             {
@@ -276,6 +283,22 @@ public partial class CoreConfigV2rayService
                 else if (host.IsNotEmpty())
                 {
                     tlsSettings.serverName = Utils.String2List(host)?.First();
+                }
+                if (certs.Count > 0)
+                {
+                    var certsettings = new List<CertificateSettings4Ray>();
+                    foreach (var cert in certs)
+                    {
+                        var certPerLine = cert.Split("\n").ToList();
+                        certsettings.Add(new CertificateSettings4Ray
+                        {
+                            certificate = certPerLine,
+                            usage = "verify",
+                        });
+                    }
+                    tlsSettings.certificates = certsettings;
+                    tlsSettings.disableSystemRoot = true;
+                    tlsSettings.allowInsecure = false;
                 }
                 streamSettings.tlsSettings = tlsSettings;
             }
@@ -453,16 +476,16 @@ public partial class CoreConfigV2rayService
                         };
 
                         //request Host
-                        string request = EmbedUtils.GetEmbedText(Global.V2raySampleHttpRequestFileName);
-                        string[] arrHost = host.Split(',');
-                        string host2 = string.Join(",".AppendQuotes(), arrHost);
+                        var request = EmbedUtils.GetEmbedText(Global.V2raySampleHttpRequestFileName);
+                        var arrHost = host.Split(',');
+                        var host2 = string.Join(",".AppendQuotes(), arrHost);
                         request = request.Replace("$requestHost$", $"{host2.AppendQuotes()}");
                         request = request.Replace("$requestUserAgent$", $"{useragent.AppendQuotes()}");
                         //Path
-                        string pathHttp = @"/";
+                        var pathHttp = @"/";
                         if (path.IsNotEmpty())
                         {
-                            string[] arrPath = path.Split(',');
+                            var arrPath = path.Split(',');
                             pathHttp = string.Join(",".AppendQuotes(), arrPath);
                         }
                         request = request.Replace("$requestPath$", $"{pathHttp.AppendQuotes()}");
@@ -623,10 +646,10 @@ public partial class CoreConfigV2rayService
             // Cache for chain proxies to avoid duplicate generation
             var nextProxyCache = new Dictionary<string, Outbounds4Ray?>();
             var prevProxyTags = new Dictionary<string, string?>(); // Map from profile name to tag
-            int prevIndex = 0; // Index for prev outbounds
+            var prevIndex = 0; // Index for prev outbounds
 
             // Process nodes
-            int index = 0;
+            var index = 0;
             foreach (var node in nodes)
             {
                 index++;
@@ -781,7 +804,10 @@ public partial class CoreConfigV2rayService
         {
             var node = nodes[i];
             if (node == null)
+            {
                 continue;
+            }
+
             if (node.ConfigType.IsGroupType())
             {
                 var (childProfiles, _) = await ProfileGroupItemManager.GetChildProfileItems(node.IndexId);

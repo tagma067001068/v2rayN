@@ -94,8 +94,8 @@ public partial class CoreConfigV2rayService(Config config)
 
             ret.Msg = ResUI.InitialConfiguration;
 
-            string result = EmbedUtils.GetEmbedText(Global.V2raySampleClient);
-            string txtOutbound = EmbedUtils.GetEmbedText(Global.V2raySampleOutbound);
+            var result = EmbedUtils.GetEmbedText(Global.V2raySampleClient);
+            var txtOutbound = EmbedUtils.GetEmbedText(Global.V2raySampleOutbound);
             if (result.IsNullOrEmpty() || txtOutbound.IsNullOrEmpty())
             {
                 ret.Msg = ResUI.FailedGetDefaultConfiguration;
@@ -137,7 +137,9 @@ public partial class CoreConfigV2rayService(Config config)
                 foreach (var rule in rules)
                 {
                     if (rule.outboundTag == null)
+                    {
                         continue;
+                    }
 
                     if (balancerTagSet.Contains(rule.outboundTag))
                     {
@@ -200,8 +202,8 @@ public partial class CoreConfigV2rayService(Config config)
 
             ret.Msg = ResUI.InitialConfiguration;
 
-            string result = EmbedUtils.GetEmbedText(Global.V2raySampleClient);
-            string txtOutbound = EmbedUtils.GetEmbedText(Global.V2raySampleOutbound);
+            var result = EmbedUtils.GetEmbedText(Global.V2raySampleClient);
+            var txtOutbound = EmbedUtils.GetEmbedText(Global.V2raySampleOutbound);
             if (result.IsNullOrEmpty() || txtOutbound.IsNullOrEmpty())
             {
                 ret.Msg = ResUI.FailedGetDefaultConfiguration;

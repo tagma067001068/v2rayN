@@ -173,13 +173,19 @@ public class ProfileGroupItemManager
     public static bool HasCycle(string? indexId, HashSet<string> visited, HashSet<string> stack)
     {
         if (indexId.IsNullOrEmpty())
+        {
             return false;
+        }
 
         if (stack.Contains(indexId))
+        {
             return true;
+        }
 
         if (visited.Contains(indexId))
+        {
             return false;
+        }
 
         visited.Add(indexId);
         stack.Add(indexId);
@@ -220,11 +226,14 @@ public class ProfileGroupItemManager
     public static async Task<(List<ProfileItem> Items, ProfileGroupItem? Group)> GetChildProfileItems(string? indexId)
     {
         Instance.TryGet(indexId, out var profileGroupItem);
-        if (profileGroupItem == null || profileGroupItem.ChildItems.IsNullOrEmpty())
+        if (profileGroupItem == null || profileGroupItem.NotHasChild())
         {
             return (new List<ProfileItem>(), profileGroupItem);
         }
         var items = await GetChildProfileItems(profileGroupItem);
+        var subItems = await GetSubChildProfileItems(profileGroupItem);
+        items.AddRange(subItems);
+
         return (items, profileGroupItem);
     }
 
@@ -248,20 +257,47 @@ public class ProfileGroupItemManager
         return childProfiles;
     }
 
+    public static async Task<List<ProfileItem>> GetSubChildProfileItems(ProfileGroupItem? group)
+    {
+        if (group == null || group.SubChildItems.IsNullOrEmpty())
+        {
+            return new();
+        }
+        var childProfiles = await AppManager.Instance.ProfileItems(group.SubChildItems);
+
+        return childProfiles.Where(p =>
+                p != null &&
+                p.IsValid() &&
+                !p.ConfigType.IsComplexType() &&
+                (group.Filter.IsNullOrEmpty() || Regex.IsMatch(p.Remarks, group.Filter))
+            )
+            .ToList();
+    }
+
     public static async Task<HashSet<string>> GetAllChildDomainAddresses(string indexId)
     {
         // include grand children
         var childAddresses = new HashSet<string>();
-        if (!Instance.TryGet(indexId, out var groupItem) || groupItem.ChildItems.IsNullOrEmpty())
+        if (!Instance.TryGet(indexId, out var groupItem) || groupItem == null)
+        {
             return childAddresses;
+        }
 
-        var childIds = Utils.String2List(groupItem.ChildItems);
+        if (groupItem.SubChildItems.IsNotEmpty())
+        {
+            var subItems = await GetSubChildProfileItems(groupItem);
+            subItems.ForEach(p => childAddresses.Add(p.Address));
+        }
+
+        var childIds = Utils.String2List(groupItem.ChildItems) ?? [];
 
         foreach (var childId in childIds)
         {
             var childNode = await AppManager.Instance.GetProfileItem(childId);
             if (childNode == null)
+            {
                 continue;
+            }
 
             if (!childNode.IsComplex())
             {

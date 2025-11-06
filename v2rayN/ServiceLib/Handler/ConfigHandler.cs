@@ -252,6 +252,7 @@ public static class ConfigHandler
             item.Mldsa65Verify = profileItem.Mldsa65Verify;
             item.Extra = profileItem.Extra;
             item.MuxEnabled = profileItem.MuxEnabled;
+            item.Cert = profileItem.Cert;
         }
 
         var ret = item.ConfigType switch
@@ -447,13 +448,13 @@ public static class ConfigHandler
     /// <returns>0 if successful, -1 if failed</returns>
     public static async Task<int> MoveServer(Config config, List<ProfileItem> lstProfile, int index, EMove eMove, int pos = -1)
     {
-        int count = lstProfile.Count;
+        var count = lstProfile.Count;
         if (index < 0 || index > lstProfile.Count - 1)
         {
             return -1;
         }
 
-        for (int i = 0; i < lstProfile.Count; i++)
+        for (var i = 0; i < lstProfile.Count; i++)
         {
             ProfileExManager.Instance.SetSort(lstProfile[i].IndexId, (i + 1) * 10);
         }
@@ -527,7 +528,7 @@ public static class ConfigHandler
             return -1;
         }
         var ext = Path.GetExtension(fileName);
-        string newFileName = $"{Utils.GetGuid()}{ext}";
+        var newFileName = $"{Utils.GetGuid()}{ext}";
         //newFileName = Path.Combine(Utile.GetTempPath(), newFileName);
 
         try
@@ -1356,7 +1357,7 @@ public static class ConfigHandler
                 }
                 continue;
             }
-            var profileItem = FmtHandler.ResolveConfig(str, out string msg);
+            var profileItem = FmtHandler.ResolveConfig(str, out var msg);
             if (profileItem is null)
             {
                 continue;
@@ -1440,7 +1441,7 @@ public static class ConfigHandler
             {
                 await RemoveServersViaSubid(config, subid, isSub);
             }
-            int count = 0;
+            var count = 0;
             foreach (var it in lstProfiles)
             {
                 it.Subid = subid;
@@ -1530,7 +1531,7 @@ public static class ConfigHandler
         var lstSsServer = ShadowsocksFmt.ResolveSip008(strData);
         if (lstSsServer?.Count > 0)
         {
-            int counter = 0;
+            var counter = 0;
             foreach (var ssItem in lstSsServer)
             {
                 ssItem.Subid = subid;
@@ -1650,7 +1651,9 @@ public static class ConfigHandler
 
         var uri = Utils.TryUri(url);
         if (uri == null)
+        {
             return -1;
+        }
         //Do not allow http protocol
         if (url.StartsWith(Global.HttpProtocol) && !Utils.IsPrivateNetwork(uri.IdnHost))
         {
@@ -1705,7 +1708,7 @@ public static class ConfigHandler
                 var maxSort = 0;
                 if (await SQLiteHelper.Instance.TableAsync<SubItem>().CountAsync() > 0)
                 {
-                    var lstSubs = (await AppManager.Instance.SubItems());
+                    var lstSubs = await AppManager.Instance.SubItems();
                     maxSort = lstSubs.LastOrDefault()?.Sort ?? 0;
                 }
                 item.Sort = maxSort + 1;
@@ -1867,7 +1870,7 @@ public static class ConfigHandler
     /// <returns>0 if successful, -1 if failed</returns>
     public static async Task<int> MoveRoutingRule(List<RulesItem> rules, int index, EMove eMove, int pos = -1)
     {
-        int count = rules.Count;
+        var count = rules.Count;
         if (index < 0 || index > rules.Count - 1)
         {
             return -1;
@@ -2017,11 +2020,15 @@ public static class ConfigHandler
         var downloadHandle = new DownloadService();
         var templateContent = await downloadHandle.TryDownloadString(config.ConstItem.RouteRulesTemplateSourceUrl, true, "");
         if (templateContent.IsNullOrEmpty())
+        {
             return await InitBuiltinRouting(config, blImportAdvancedRules); // fallback
+        }
 
         var template = JsonUtils.Deserialize<RoutingTemplate>(templateContent);
         if (template == null)
+        {
             return await InitBuiltinRouting(config, blImportAdvancedRules); // fallback
+        }
 
         var items = await AppManager.Instance.RoutingItems();
         var maxSort = items.Count;
@@ -2034,14 +2041,18 @@ public static class ConfigHandler
             var item = template.RoutingItems[i];
 
             if (item.Url.IsNullOrEmpty() && item.RuleSet.IsNullOrEmpty())
+            {
                 continue;
+            }
 
             var ruleSetsString = !item.RuleSet.IsNullOrEmpty()
                 ? item.RuleSet
                 : await downloadHandle.TryDownloadString(item.Url, true, "");
 
             if (ruleSetsString.IsNullOrEmpty())
+            {
                 continue;
+            }
 
             item.Remarks = $"{template.Version}-{item.Remarks}";
             item.Enabled = true;
@@ -2237,17 +2248,25 @@ public static class ConfigHandler
         var downloadHandle = new DownloadService();
         var templateContent = await downloadHandle.TryDownloadString(url, true, "");
         if (templateContent.IsNullOrEmpty())
+        {
             return currentItem;
+        }
 
         var template = JsonUtils.Deserialize<DNSItem>(templateContent);
         if (template == null)
+        {
             return currentItem;
+        }
 
         if (!template.NormalDNS.IsNullOrEmpty())
+        {
             template.NormalDNS = await downloadHandle.TryDownloadString(template.NormalDNS, true, "");
+        }
 
         if (!template.TunDNS.IsNullOrEmpty())
+        {
             template.TunDNS = await downloadHandle.TryDownloadString(template.TunDNS, true, "");
+        }
 
         template.Id = currentItem.Id;
         template.Enabled = currentItem.Enabled;
@@ -2281,10 +2300,16 @@ public static class ConfigHandler
         var downloadHandle = new DownloadService();
         var templateContent = await downloadHandle.TryDownloadString(url, true, "");
         if (templateContent.IsNullOrEmpty())
+        {
             return null;
+        }
+
         var template = JsonUtils.Deserialize<SimpleDNSItem>(templateContent);
         if (template == null)
+        {
             return null;
+        }
+
         return template;
     }
 

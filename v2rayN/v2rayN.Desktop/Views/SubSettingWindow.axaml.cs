@@ -14,8 +14,8 @@ public partial class SubSettingWindow : WindowBase<SubSettingViewModel>
 
         menuClose.Click += menuClose_Click;
         Loaded += Window_Loaded;
-        this.Closing += SubSettingWindow_Closing;
-        this.KeyDown += SubSettingWindow_KeyDown;
+        Closing += SubSettingWindow_Closing;
+        KeyDown += SubSettingWindow_KeyDown;
         ViewModel = new SubSettingViewModel(UpdateViewHandler);
         lstSubscription.DoubleTapped += LstSubscription_DoubleTapped;
         lstSubscription.SelectionChanged += LstSubscription_SelectionChanged;
@@ -37,7 +37,7 @@ public partial class SubSettingWindow : WindowBase<SubSettingViewModel>
         switch (action)
         {
             case EViewAction.CloseWindow:
-                this.Close();
+                Close();
                 break;
 
             case EViewAction.ShowYesNo:
@@ -49,14 +49,20 @@ public partial class SubSettingWindow : WindowBase<SubSettingViewModel>
 
             case EViewAction.SubEditWindow:
                 if (obj is null)
+                {
                     return false;
+                }
+
                 var window = new SubEditWindow((SubItem)obj);
                 await window.ShowDialog(this);
                 break;
 
             case EViewAction.ShareSub:
                 if (obj is null)
+                {
                     return false;
+                }
+
                 await ShareSub((string)obj);
                 break;
         }
@@ -89,7 +95,7 @@ public partial class SubSettingWindow : WindowBase<SubSettingViewModel>
     private void menuClose_Click(object? sender, RoutedEventArgs e)
     {
         _manualClose = true;
-        this.Close(ViewModel?.IsModified);
+        Close(ViewModel?.IsModified);
     }
 
     private void SubSettingWindow_Closing(object? sender, WindowClosingEventArgs e)

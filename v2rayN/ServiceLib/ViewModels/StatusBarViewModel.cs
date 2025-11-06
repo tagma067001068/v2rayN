@@ -120,7 +120,7 @@ public class StatusBarViewModel : MyReactiveObject
         this.WhenAnyValue(
                 x => x.SelectedServer,
                 y => y != null && !y.Text.IsNullOrEmpty())
-            .Subscribe(c => ServerSelectedChanged(c));
+            .Subscribe(ServerSelectedChanged);
 
         SystemProxySelected = (int)_config.SystemProxyItem.SysProxyType;
         this.WhenAnyValue(
@@ -313,10 +313,10 @@ public class StatusBarViewModel : MyReactiveObject
         }
 
         BlServers = true;
-        for (int k = 0; k < lstModel.Count; k++)
+        for (var k = 0; k < lstModel.Count; k++)
         {
             ProfileItem it = lstModel[k];
-            string name = it.GetSummary();
+            var name = it.GetSummary();
 
             var item = new ComboItem() { ID = it.IndexId, Text = name };
             Servers.Add(item);
@@ -367,11 +367,13 @@ public class StatusBarViewModel : MyReactiveObject
             _ = TestServerAvailabilityResult(msg);
             return Disposable.Empty;
         });
+        await Task.CompletedTask;
     }
 
     public async Task TestServerAvailabilityResult(string msg)
     {
         RunningInfoDisplay = msg;
+        await Task.CompletedTask;
     }
 
     #region System proxy and Routings
@@ -384,7 +386,7 @@ public class StatusBarViewModel : MyReactiveObject
         }
         _config.SystemProxyItem.SysProxyType = type;
         await ChangeSystemProxyAsync(type, true);
-        NoticeManager.Instance.SendMessageEx($"{ResUI.TipChangeSystemProxy} - {_config.SystemProxyItem.SysProxyType.ToString()}");
+        NoticeManager.Instance.SendMessageEx($"{ResUI.TipChangeSystemProxy} - {_config.SystemProxyItem.SysProxyType}");
 
         SystemProxySelected = (int)_config.SystemProxyItem.SysProxyType;
         await ConfigHandler.SaveConfig(_config);
@@ -394,10 +396,10 @@ public class StatusBarViewModel : MyReactiveObject
     {
         await SysProxyHandler.UpdateSysProxy(_config, false);
 
-        BlSystemProxyClear = (type == ESysProxyType.ForcedClear);
-        BlSystemProxySet = (type == ESysProxyType.ForcedChange);
-        BlSystemProxyNothing = (type == ESysProxyType.Unchanged);
-        BlSystemProxyPac = (type == ESysProxyType.Pac);
+        BlSystemProxyClear = type == ESysProxyType.ForcedClear;
+        BlSystemProxySet = type == ESysProxyType.ForcedChange;
+        BlSystemProxyNothing = type == ESysProxyType.Unchanged;
+        BlSystemProxyPac = type == ESysProxyType.Pac;
 
         if (blChange)
         {
@@ -561,6 +563,7 @@ public class StatusBarViewModel : MyReactiveObject
         catch
         {
         }
+        await Task.CompletedTask;
     }
 
     #endregion UI

@@ -81,21 +81,36 @@ public class ActionPrecheckManager(Config config)
             {
                 case EConfigType.VMess:
                     if (item.Id.IsNullOrEmpty() || !Utils.IsGuidByParse(item.Id))
+                    {
                         errors.Add(string.Format(ResUI.InvalidProperty, "Id"));
+                    }
+
                     break;
 
                 case EConfigType.VLESS:
-                    if (item.Id.IsNullOrEmpty() || !Utils.IsGuidByParse(item.Id) && item.Id.Length > 30)
+                    if (item.Id.IsNullOrEmpty() || (!Utils.IsGuidByParse(item.Id) && item.Id.Length > 30))
+                    {
                         errors.Add(string.Format(ResUI.InvalidProperty, "Id"));
+                    }
+
                     if (!Global.Flows.Contains(item.Flow))
+                    {
                         errors.Add(string.Format(ResUI.InvalidProperty, "Flow"));
+                    }
+
                     break;
 
                 case EConfigType.Shadowsocks:
                     if (item.Id.IsNullOrEmpty())
+                    {
                         errors.Add(string.Format(ResUI.InvalidProperty, "Id"));
+                    }
+
                     if (string.IsNullOrEmpty(item.Security) || !Global.SsSecuritiesInSingbox.Contains(item.Security))
+                    {
                         errors.Add(string.Format(ResUI.InvalidProperty, "Security"));
+                    }
+
                     break;
             }
 
@@ -115,7 +130,7 @@ public class ActionPrecheckManager(Config config)
         if (item.ConfigType.IsGroupType())
         {
             ProfileGroupItemManager.Instance.TryGet(item.IndexId, out var group);
-            if (group is null || group.ChildItems.IsNullOrEmpty())
+            if (group is null || group.NotHasChild())
             {
                 errors.Add(string.Format(ResUI.GroupEmpty, item.Remarks));
                 return errors;
@@ -128,7 +143,11 @@ public class ActionPrecheckManager(Config config)
                 return errors;
             }
 
-            foreach (var child in Utils.String2List(group.ChildItems))
+            var childIds = Utils.String2List(group.ChildItems) ?? [];
+            var subItems = await ProfileGroupItemManager.GetSubChildProfileItems(group);
+            childIds.AddRange(subItems.Select(p => p.IndexId));
+
+            foreach (var child in childIds)
             {
                 var childErrors = new List<string>();
                 if (child.IsNullOrEmpty())

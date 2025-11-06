@@ -39,6 +39,7 @@
                 IsCancel="true"
                 Style="{StaticResource DefButton}" />
         </StackPanel>
+
         <Grid DockPanel.Dock="Top">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -48,12 +49,12 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -132,6 +133,63 @@
                 </Grid>
             </Grid>
         </Grid>
+
+        <TabControl DockPanel.Dock="Top">
+            <TabItem HorizontalAlignment="Left" Header="{x:Static resx:ResUI.menuServerList}">
+                <Grid Margin="{StaticResource Margin8}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="{StaticResource Margin4}"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource ToolbarTextBlock}"
+                        Text="{x:Static resx:ResUI.menuSubscription}" />
+                    <ComboBox
+                        x:Name="cmbSubChildItems"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Width="200"
+                        Margin="{StaticResource Margin4}"
+                        DisplayMemberPath="Remarks"
+                        Style="{StaticResource DefComboBox}" />
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Margin="{StaticResource Margin4}"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource ToolbarTextBlock}"
+                        Text="{x:Static resx:ResUI.TbPolicyGroupSubChildTip}" />
+
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="{StaticResource Margin4}"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource ToolbarTextBlock}"
+                        Text="{x:Static resx:ResUI.LvFilter}" />
+                    <TextBox
+                        x:Name="txtFilter"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Margin="{StaticResource Margin4}"
+                        VerticalAlignment="Center"
+                        AcceptsReturn="True"
+                        Style="{StaticResource DefTextBox}" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+
         <TabControl>
             <TabItem HorizontalAlignment="Left" Header="{x:Static resx:ResUI.menuServerList}">
                 <DataGrid

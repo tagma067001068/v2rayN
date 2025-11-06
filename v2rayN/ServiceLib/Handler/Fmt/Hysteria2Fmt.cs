@@ -12,7 +12,9 @@ public class Hysteria2Fmt : BaseFmt
 
         var url = Utils.TryUri(str);
         if (url == null)
+        {
             return null;
+        }
 
         item.Address = url.IdnHost;
         item.Port = url.Port;
@@ -32,10 +34,13 @@ public class Hysteria2Fmt : BaseFmt
     public static string? ToUri(ProfileItem? item)
     {
         if (item == null)
+        {
             return null;
-        string url = string.Empty;
+        }
 
-        string remark = string.Empty;
+        var url = string.Empty;
+
+        var remark = string.Empty;
         if (item.Remarks.IsNotEmpty())
         {
             remark = "#" + Utils.UrlEncode(item.Remarks);
