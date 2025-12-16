@@ -118,7 +118,16 @@ public class BaseFmt
                 }
                 if (item.Extra.IsNotEmpty())
                 {
-                    dicQuery.Add("extra", Utils.UrlEncode(item.Extra));
+                    var node = JsonUtils.ParseJson(item.Extra);
+                    var extra = node != null
+                        ? JsonUtils.Serialize(node, new JsonSerializerOptions
+                        {
+                            WriteIndented = false,
+                            DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+                            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                        })
+                        : item.Extra;
+                    dicQuery.Add("extra", Utils.UrlEncode(extra));
                 }
                 break;
 
@@ -237,7 +246,21 @@ public class BaseFmt
                 item.RequestHost = GetQueryDecoded(query, "host");
                 item.Path = GetQueryDecoded(query, "path", "/");
                 item.HeaderType = GetQueryDecoded(query, "mode");
-                item.Extra = GetQueryDecoded(query, "extra");
+                var extraDecoded = GetQueryDecoded(query, "extra");
+                if (extraDecoded.IsNotEmpty())
+                {
+                    var node = JsonUtils.ParseJson(extraDecoded);
+                    if (node != null)
+                    {
+                        extraDecoded = JsonUtils.Serialize(node, new JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+                            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                        });
+                    }
+                }
+                item.Extra = extraDecoded;
                 break;
 
             case nameof(ETransport.http):

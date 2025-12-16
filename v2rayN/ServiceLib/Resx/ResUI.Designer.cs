@@ -19,7 +19,7 @@ namespace ServiceLib.Resx {
     // 类通过类似于 ResGen 或 Visual Studio 的工具自动生成的。
     // 若要添加或移除成员，请编辑 .ResX 文件，然后重新运行 ResGen
     // (以 /str 作为命令选项)，或重新生成 VS 项目。
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class ResUI {
@@ -75,6 +75,15 @@ namespace ServiceLib.Resx {
         public static string AllGroupServers {
             get {
                 return ResourceManager.GetString("AllGroupServers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 ALPN must contain &apos;http/1.1&apos; when using WebSocket with TLS. 的本地化字符串。
+        /// </summary>
+        public static string AlpnMustContainHttp11ForWsTls {
+            get {
+                return ResourceManager.GetString("AlpnMustContainHttp11ForWsTls", resourceCulture);
             }
         }
         
@@ -529,7 +538,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Next proxy Configuration remarks 的本地化字符串。
+        ///   查找类似 Next proxy remarks 的本地化字符串。
         /// </summary>
         public static string LvNextProfile {
             get {
@@ -547,7 +556,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Previous proxy Configuration remarks 的本地化字符串。
+        ///   查找类似 Previous proxy remarks 的本地化字符串。
         /// </summary>
         public static string LvPrevProfile {
             get {
@@ -736,7 +745,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add [Anytls] Configuration 的本地化字符串。
+        ///   查找类似 Add [Anytls] 的本地化字符串。
         /// </summary>
         public static string menuAddAnytlsServer {
             get {
@@ -745,7 +754,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add Child Configuration 的本地化字符串。
+        ///   查找类似 Add Child  的本地化字符串。
         /// </summary>
         public static string menuAddChildServer {
             get {
@@ -754,7 +763,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add a custom configuration Configuration 的本地化字符串。
+        ///   查找类似 Add a custom configuration 的本地化字符串。
         /// </summary>
         public static string menuAddCustomServer {
             get {
@@ -763,7 +772,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add [HTTP] Configuration 的本地化字符串。
+        ///   查找类似 Add [HTTP] 的本地化字符串。
         /// </summary>
         public static string menuAddHttpServer {
             get {
@@ -772,7 +781,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add [Hysteria2] Configuration 的本地化字符串。
+        ///   查找类似 Add [Hysteria2]  的本地化字符串。
         /// </summary>
         public static string menuAddHysteria2Server {
             get {
@@ -781,7 +790,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add Policy Group Configuration 的本地化字符串。
+        ///   查找类似 Add Policy Group  的本地化字符串。
         /// </summary>
         public static string menuAddPolicyGroupServer {
             get {
@@ -790,7 +799,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add Proxy Chain Configuration 的本地化字符串。
+        ///   查找类似 Add Proxy Chain 的本地化字符串。
         /// </summary>
         public static string menuAddProxyChainServer {
             get {
@@ -799,7 +808,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Import Share Links from clipboard (Ctrl+V) 的本地化字符串。
+        ///   查找类似 Import Share Links from clipboard 的本地化字符串。
         /// </summary>
         public static string menuAddServerViaClipboard {
             get {
@@ -817,7 +826,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Scan QR code on the screen (Ctrl+S) 的本地化字符串。
+        ///   查找类似 Scan QR code on the screen 的本地化字符串。
         /// </summary>
         public static string menuAddServerViaScan {
             get {
@@ -826,7 +835,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add [Shadowsocks] Configuration 的本地化字符串。
+        ///   查找类似 Add [Shadowsocks]  的本地化字符串。
         /// </summary>
         public static string menuAddShadowsocksServer {
             get {
@@ -835,7 +844,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add [SOCKS] Configuration 的本地化字符串。
+        ///   查找类似 Add [SOCKS]  的本地化字符串。
         /// </summary>
         public static string menuAddSocksServer {
             get {
@@ -844,7 +853,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add [Trojan] Configuration 的本地化字符串。
+        ///   查找类似 Add [Trojan]  的本地化字符串。
         /// </summary>
         public static string menuAddTrojanServer {
             get {
@@ -853,7 +862,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add [TUIC] Configuration 的本地化字符串。
+        ///   查找类似 Add [TUIC]  的本地化字符串。
         /// </summary>
         public static string menuAddTuicServer {
             get {
@@ -862,7 +871,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add [VLESS] Configuration 的本地化字符串。
+        ///   查找类似 Add [VLESS]  的本地化字符串。
         /// </summary>
         public static string menuAddVlessServer {
             get {
@@ -871,7 +880,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add [VMess] Configuration 的本地化字符串。
+        ///   查找类似 Add [VMess]  的本地化字符串。
         /// </summary>
         public static string menuAddVmessServer {
             get {
@@ -880,7 +889,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Add [WireGuard] Configuration 的本地化字符串。
+        ///   查找类似 Add [WireGuard]  的本地化字符串。
         /// </summary>
         public static string menuAddWireguardServer {
             get {
@@ -952,7 +961,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Clone selected Configuration 的本地化字符串。
+        ///   查找类似 Clone selected 的本地化字符串。
         /// </summary>
         public static string menuCopyServer {
             get {
@@ -970,7 +979,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Edit Configuration (Ctrl+D) 的本地化字符串。
+        ///   查找类似 Edit  的本地化字符串。
         /// </summary>
         public static string menuEditServer {
             get {
@@ -997,7 +1006,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Export selected Configuration for complete configuration 的本地化字符串。
+        ///   查找类似 Export selected for complete configuration 的本地化字符串。
         /// </summary>
         public static string menuExport2ClientConfig {
             get {
@@ -1006,7 +1015,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Export selected Configuration for complete configuration to clipboard 的本地化字符串。
+        ///   查找类似 Export selected for complete configuration to clipboard 的本地化字符串。
         /// </summary>
         public static string menuExport2ClientConfigClipboard {
             get {
@@ -1015,7 +1024,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Export Share Link to Clipboard (Ctrl+C) 的本地化字符串。
+        ///   查找类似 Export Share Link to Clipboard 的本地化字符串。
         /// </summary>
         public static string menuExport2ShareUrl {
             get {
@@ -1033,7 +1042,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Export Configuration 的本地化字符串。
+        ///   查找类似 Export 的本地化字符串。
         /// </summary>
         public static string menuExportConfig {
             get {
@@ -1069,7 +1078,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Multi-Configuration Fallback by sing-box 的本地化字符串。
+        ///   查找类似 Fallback by sing-box 的本地化字符串。
         /// </summary>
         public static string menuGenGroupMultipleServerSingBoxFallback {
             get {
@@ -1078,7 +1087,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Multi-Configuration LeastPing by sing-box 的本地化字符串。
+        ///   查找类似 LeastPing by sing-box 的本地化字符串。
         /// </summary>
         public static string menuGenGroupMultipleServerSingBoxLeastPing {
             get {
@@ -1087,7 +1096,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Multi-Configuration Fallback by Xray 的本地化字符串。
+        ///   查找类似 Fallback by Xray 的本地化字符串。
         /// </summary>
         public static string menuGenGroupMultipleServerXrayFallback {
             get {
@@ -1096,7 +1105,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Multi-Configuration LeastLoad by Xray 的本地化字符串。
+        ///   查找类似 LeastLoad by Xray 的本地化字符串。
         /// </summary>
         public static string menuGenGroupMultipleServerXrayLeastLoad {
             get {
@@ -1105,7 +1114,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Multi-Configuration LeastPing by Xray 的本地化字符串。
+        ///   查找类似 LeastPing by Xray 的本地化字符串。
         /// </summary>
         public static string menuGenGroupMultipleServerXrayLeastPing {
             get {
@@ -1114,7 +1123,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Multi-Configuration Random by Xray 的本地化字符串。
+        ///   查找类似 Random by Xray 的本地化字符串。
         /// </summary>
         public static string menuGenGroupMultipleServerXrayRandom {
             get {
@@ -1123,7 +1132,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Multi-Configuration RoundRobin by Xray 的本地化字符串。
+        ///   查找类似 RoundRobin by Xray 的本地化字符串。
         /// </summary>
         public static string menuGenGroupMultipleServerXrayRoundRobin {
             get {
@@ -1249,7 +1258,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Move to bottom (B) 的本地化字符串。
+        ///   查找类似 Move to bottom 的本地化字符串。
         /// </summary>
         public static string menuMoveBottom {
             get {
@@ -1258,7 +1267,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Down (D) 的本地化字符串。
+        ///   查找类似 Down 的本地化字符串。
         /// </summary>
         public static string menuMoveDown {
             get {
@@ -1285,7 +1294,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Move to top (T) 的本地化字符串。
+        ///   查找类似 Move to top 的本地化字符串。
         /// </summary>
         public static string menuMoveTop {
             get {
@@ -1294,7 +1303,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Up (U) 的本地化字符串。
+        ///   查找类似 Up 的本地化字符串。
         /// </summary>
         public static string menuMoveUp {
             get {
@@ -1312,7 +1321,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Copy (Ctrl+C) 的本地化字符串。
+        ///   查找类似 Copy 的本地化字符串。
         /// </summary>
         public static string menuMsgViewCopy {
             get {
@@ -1330,7 +1339,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Select all (Ctrl+A) 的本地化字符串。
+        ///   查找类似 Select all 的本地化字符串。
         /// </summary>
         public static string menuMsgViewSelectAll {
             get {
@@ -1402,7 +1411,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Select active node (Enter) 的本地化字符串。
+        ///   查找类似 Select active node 的本地化字符串。
         /// </summary>
         public static string menuProxiesSelectActivity {
             get {
@@ -1411,7 +1420,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Test Configurations real delay (Ctrl+R) 的本地化字符串。
+        ///   查找类似 Test real delay 的本地化字符串。
         /// </summary>
         public static string menuRealPingServer {
             get {
@@ -1501,7 +1510,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Remove Child Configuration 的本地化字符串。
+        ///   查找类似 Remove Child  的本地化字符串。
         /// </summary>
         public static string menuRemoveChildServer {
             get {
@@ -1510,7 +1519,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Remove duplicate Configurations 的本地化字符串。
+        ///   查找类似 Remove duplicate 的本地化字符串。
         /// </summary>
         public static string menuRemoveDuplicateServer {
             get {
@@ -1528,7 +1537,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Remove selected Configurations (Delete) 的本地化字符串。
+        ///   查找类似 Remove selected 的本地化字符串。
         /// </summary>
         public static string menuRemoveServer {
             get {
@@ -1564,7 +1573,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Remove selected (Delete) 的本地化字符串。
+        ///   查找类似 Remove selected 的本地化字符串。
         /// </summary>
         public static string menuRoutingAdvancedRemove {
             get {
@@ -1573,7 +1582,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Set as active rule (Enter) 的本地化字符串。
+        ///   查找类似 Set as active rule 的本地化字符串。
         /// </summary>
         public static string menuRoutingAdvancedSetDefault {
             get {
@@ -1645,7 +1654,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Remove Rule (Delete) 的本地化字符串。
+        ///   查找类似 Remove Rule 的本地化字符串。
         /// </summary>
         public static string menuRuleRemove {
             get {
@@ -1654,7 +1663,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Select all (Ctrl+A) 的本地化字符串。
+        ///   查找类似 Select all 的本地化字符串。
         /// </summary>
         public static string menuSelectAll {
             get {
@@ -1663,7 +1672,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Configuration List 的本地化字符串。
+        ///   查找类似 Configuration item 1, Auto add from subscription group 的本地化字符串。
         /// </summary>
         public static string menuServerList {
             get {
@@ -1672,7 +1681,16 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Configurations 的本地化字符串。
+        ///   查找类似 Configuration Item 2, Select and add from self-built 的本地化字符串。
+        /// </summary>
+        public static string menuServerList2 {
+            get {
+                return ResourceManager.GetString("menuServerList2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Configuration 的本地化字符串。
         /// </summary>
         public static string menuServers {
             get {
@@ -1681,7 +1699,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Set as active Configuration (Enter) 的本地化字符串。
+        ///   查找类似 Set as active 的本地化字符串。
         /// </summary>
         public static string menuSetDefaultServer {
             get {
@@ -1699,7 +1717,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Share Configuration (Ctrl+F) 的本地化字符串。
+        ///   查找类似 Share 的本地化字符串。
         /// </summary>
         public static string menuShareServer {
             get {
@@ -1726,7 +1744,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Test Configurations download speed (Ctrl+T) 的本地化字符串。
+        ///   查找类似 Test download speed 的本地化字符串。
         /// </summary>
         public static string menuSpeedServer {
             get {
@@ -1870,7 +1888,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Test Configurations with tcping (Ctrl+O) 的本地化字符串。
+        ///   查找类似 Test tcping 的本地化字符串。
         /// </summary>
         public static string menuTcpingServer {
             get {
@@ -1978,7 +1996,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Configuration filter, press Enter to execute 的本地化字符串。
+        ///   查找类似 Filter, press Enter to execute 的本地化字符串。
         /// </summary>
         public static string MsgServerTitle {
             get {
@@ -2275,7 +2293,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Are you sure you want to remove the Configuration? 的本地化字符串。
+        ///   查找类似 Are you sure you want to remove? 的本地化字符串。
         /// </summary>
         public static string RemoveServer {
             get {
@@ -4105,7 +4123,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 Tray right-click menu Configurations display limit 的本地化字符串。
+        ///   查找类似 Tray right-click menu display limit 的本地化字符串。
         /// </summary>
         public static string TbSettingsTrayMenuServersLimit {
             get {

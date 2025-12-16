@@ -26,12 +26,61 @@ public partial class CoreConfigSingboxService
                         }
 
                         await GenOutboundMux(node, outbound);
+                        await GenOutboundTransport(node, outbound);
                         break;
                     }
                 case EConfigType.Shadowsocks:
                     {
                         outbound.method = AppManager.Instance.GetShadowsocksSecurities(node).Contains(node.Security) ? node.Security : Global.None;
                         outbound.password = node.Id;
+
+                        if (node.Network == nameof(ETransport.tcp) && node.HeaderType == Global.TcpHeaderHttp)
+                        {
+                            outbound.plugin = "obfs-local";
+                            outbound.plugin_opts = $"obfs=http;obfs-host={node.RequestHost};";
+                        }
+                        else
+                        {
+                            var pluginArgs = string.Empty;
+                            if (node.Network == nameof(ETransport.ws))
+                            {
+                                pluginArgs += "mode=websocket;";
+                                pluginArgs += $"host={node.RequestHost};";
+                                // https://github.com/shadowsocks/v2ray-plugin/blob/e9af1cdd2549d528deb20a4ab8d61c5fbe51f306/args.go#L172
+                                // Equal signs and commas [and backslashes] must be escaped with a backslash.
+                                var path = node.Path.Replace("\\", "\\\\").Replace("=", "\\=").Replace(",", "\\,");
+                                pluginArgs += $"path={path};";
+                            }
+                            else if (node.Network == nameof(ETransport.quic))
+                            {
+                                pluginArgs += "mode=quic;";
+                            }
+                            if (node.StreamSecurity == Global.StreamSecurity)
+                            {
+                                pluginArgs += "tls;";
+                                var certs = CertPemManager.ParsePemChain(node.Cert);
+                                if (certs.Count > 0)
+                                {
+                                    var cert = certs.First();
+                                    const string beginMarker = "-----BEGIN CERTIFICATE-----\n";
+                                    const string endMarker = "\n-----END CERTIFICATE-----";
+
+                                    var base64Content = cert.Replace(beginMarker, "").Replace(endMarker, "").Trim();
+
+                                    base64Content = base64Content.Replace("=", "\\=");
+
+                                    pluginArgs += $"certRaw={base64Content};";
+                                }
+                            }
+                            if (pluginArgs.Length > 0)
+                            {
+                                outbound.plugin = "v2ray-plugin";
+                                pluginArgs += "mux=0;";
+                                // pluginStr remove last ';'
+                                pluginArgs = pluginArgs[..^1];
+                                outbound.plugin_opts = pluginArgs;
+                            }
+                        }
 
                         await GenOutboundMux(node, outbound);
                         break;
@@ -71,6 +120,8 @@ public partial class CoreConfigSingboxService
                         {
                             outbound.flow = node.Flow;
                         }
+
+                        await GenOutboundTransport(node, outbound);
                         break;
                     }
                 case EConfigType.Trojan:
@@ -78,6 +129,7 @@ public partial class CoreConfigSingboxService
                         outbound.password = node.Id;
 
                         await GenOutboundMux(node, outbound);
+                        await GenOutboundTransport(node, outbound);
                         break;
                     }
                 case EConfigType.Hysteria2:
@@ -127,8 +179,6 @@ public partial class CoreConfigSingboxService
             }
 
             await GenOutboundTls(node, outbound);
-
-            await GenOutboundTransport(node, outbound);
         }
         catch (Exception ex)
         {
@@ -232,54 +282,59 @@ public partial class CoreConfigSingboxService
     {
         try
         {
-            if (node.StreamSecurity is Global.StreamSecurityReality or Global.StreamSecurity)
+            if (node.StreamSecurity is not (Global.StreamSecurityReality or Global.StreamSecurity))
             {
-                var server_name = string.Empty;
-                if (node.Sni.IsNotEmpty())
-                {
-                    server_name = node.Sni;
-                }
-                else if (node.RequestHost.IsNotEmpty())
-                {
-                    server_name = Utils.String2List(node.RequestHost)?.First();
-                }
-                var tls = new Tls4Sbox()
+                return await Task.FromResult(0);
+            }
+            if (node.ConfigType is EConfigType.Shadowsocks or EConfigType.SOCKS or EConfigType.WireGuard)
+            {
+                return await Task.FromResult(0);
+            }
+            var server_name = string.Empty;
+            if (node.Sni.IsNotEmpty())
+            {
+                server_name = node.Sni;
+            }
+            else if (node.RequestHost.IsNotEmpty())
+            {
+                server_name = Utils.String2List(node.RequestHost)?.First();
+            }
+            var tls = new Tls4Sbox()
+            {
+                enabled = true,
+                record_fragment = _config.CoreBasicItem.EnableFragment ? true : null,
+                server_name = server_name,
+                insecure = Utils.ToBool(node.AllowInsecure.IsNullOrEmpty() ? _config.CoreBasicItem.DefAllowInsecure.ToString().ToLower() : node.AllowInsecure),
+                alpn = node.GetAlpn(),
+            };
+            if (node.Fingerprint.IsNotEmpty())
+            {
+                tls.utls = new Utls4Sbox()
                 {
                     enabled = true,
-                    record_fragment = _config.CoreBasicItem.EnableFragment ? true : null,
-                    server_name = server_name,
-                    insecure = Utils.ToBool(node.AllowInsecure.IsNullOrEmpty() ? _config.CoreBasicItem.DefAllowInsecure.ToString().ToLower() : node.AllowInsecure),
-                    alpn = node.GetAlpn(),
+                    fingerprint = node.Fingerprint.IsNullOrEmpty() ? _config.CoreBasicItem.DefFingerprint : node.Fingerprint
                 };
-                if (node.Fingerprint.IsNotEmpty())
+            }
+            if (node.StreamSecurity == Global.StreamSecurity)
+            {
+                var certs = CertPemManager.ParsePemChain(node.Cert);
+                if (certs.Count > 0)
                 {
-                    tls.utls = new Utls4Sbox()
-                    {
-                        enabled = true,
-                        fingerprint = node.Fingerprint.IsNullOrEmpty() ? _config.CoreBasicItem.DefFingerprint : node.Fingerprint
-                    };
-                }
-                if (node.StreamSecurity == Global.StreamSecurity)
-                {
-                    var certs = CertPemManager.ParsePemChain(node.Cert);
-                    if (certs.Count > 0)
-                    {
-                        tls.certificate = certs;
-                        tls.insecure = false;
-                    }
-                }
-                else if (node.StreamSecurity == Global.StreamSecurityReality)
-                {
-                    tls.reality = new Reality4Sbox()
-                    {
-                        enabled = true,
-                        public_key = node.PublicKey,
-                        short_id = node.ShortId
-                    };
+                    tls.certificate = certs;
                     tls.insecure = false;
                 }
-                outbound.tls = tls;
             }
+            else if (node.StreamSecurity == Global.StreamSecurityReality)
+            {
+                tls.reality = new Reality4Sbox()
+                {
+                    enabled = true,
+                    public_key = node.PublicKey,
+                    short_id = node.ShortId
+                };
+                tls.insecure = false;
+            }
+            outbound.tls = tls;
         }
         catch (Exception ex)
         {
@@ -305,23 +360,43 @@ public partial class CoreConfigSingboxService
                 case nameof(ETransport.tcp):   //http
                     if (node.HeaderType == Global.TcpHeaderHttp)
                     {
-                        if (node.ConfigType == EConfigType.Shadowsocks)
-                        {
-                            outbound.plugin = "obfs-local";
-                            outbound.plugin_opts = $"obfs=http;obfs-host={node.RequestHost};";
-                        }
-                        else
-                        {
-                            transport.type = nameof(ETransport.http);
-                            transport.host = node.RequestHost.IsNullOrEmpty() ? null : Utils.String2List(node.RequestHost);
-                            transport.path = node.Path.IsNullOrEmpty() ? null : node.Path;
-                        }
+                        transport.type = nameof(ETransport.http);
+                        transport.host = node.RequestHost.IsNullOrEmpty() ? null : Utils.String2List(node.RequestHost);
+                        transport.path = node.Path.IsNullOrEmpty() ? null : node.Path;
                     }
                     break;
 
                 case nameof(ETransport.ws):
                     transport.type = nameof(ETransport.ws);
-                    transport.path = node.Path.IsNullOrEmpty() ? null : node.Path;
+                    var wsPath = node.Path;
+
+                    // Parse eh and ed parameters from path using regex
+                    if (!wsPath.IsNullOrEmpty())
+                    {
+                        var edRegex = new Regex(@"[?&]ed=(\d+)");
+                        var edMatch = edRegex.Match(wsPath);
+                        if (edMatch.Success && int.TryParse(edMatch.Groups[1].Value, out var edValue))
+                        {
+                            transport.max_early_data = edValue;
+                            transport.early_data_header_name = "Sec-WebSocket-Protocol";
+
+                            wsPath = edRegex.Replace(wsPath, "");
+                            wsPath = wsPath.Replace("?&", "?");
+                            if (wsPath.EndsWith('?'))
+                            {
+                                wsPath = wsPath.TrimEnd('?');
+                            }
+                        }
+
+                        var ehRegex = new Regex(@"[?&]eh=([^&]+)");
+                        var ehMatch = ehRegex.Match(wsPath);
+                        if (ehMatch.Success)
+                        {
+                            transport.early_data_header_name = Uri.UnescapeDataString(ehMatch.Groups[1].Value);
+                        }
+                    }
+
+                    transport.path = wsPath.IsNullOrEmpty() ? null : wsPath;
                     if (node.RequestHost.IsNotEmpty())
                     {
                         transport.headers = new()

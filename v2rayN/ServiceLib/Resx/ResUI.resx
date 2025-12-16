@@ -271,7 +271,7 @@
     <value>Configurations deduplication completed. Old: {0}, New: {1}.</value>
   </data>
   <data name="RemoveServer" xml:space="preserve">
-    <value>Are you sure you want to remove the Configuration?</value>
+    <value>Are you sure you want to remove?</value>
   </data>
   <data name="SaveClientConfigurationIn" xml:space="preserve">
     <value>The client configuration file is saved at: {0}</value>
@@ -397,7 +397,7 @@
     <value>Local</value>
   </data>
   <data name="MsgServerTitle" xml:space="preserve">
-    <value>Configuration filter, press Enter to execute</value>
+    <value>Filter, press Enter to execute</value>
   </data>
   <data name="menuCheckUpdate" xml:space="preserve">
     <value>Check Update</value>
@@ -427,7 +427,7 @@
     <value>Routing Setting</value>
   </data>
   <data name="menuServers" xml:space="preserve">
-    <value>Configurations</value>
+    <value>Configuration</value>
   </data>
   <data name="menuSetting" xml:space="preserve">
     <value>Settings</value>
@@ -472,76 +472,76 @@
     <value>Language (Restart)</value>
   </data>
   <data name="menuAddServerViaClipboard" xml:space="preserve">
-    <value>Import Share Links from clipboard (Ctrl+V)</value>
+    <value>Import Share Links from clipboard</value>
   </data>
   <data name="menuAddServerViaScan" xml:space="preserve">
-    <value>Scan QR code on the screen (Ctrl+S)</value>
+    <value>Scan QR code on the screen</value>
   </data>
   <data name="menuCopyServer" xml:space="preserve">
-    <value>Clone selected Configuration</value>
+    <value>Clone selected</value>
   </data>
   <data name="menuRemoveDuplicateServer" xml:space="preserve">
-    <value>Remove duplicate Configurations</value>
+    <value>Remove duplicate</value>
   </data>
   <data name="menuRemoveServer" xml:space="preserve">
-    <value>Remove selected Configurations (Delete)</value>
+    <value>Remove selected</value>
   </data>
   <data name="menuSetDefaultServer" xml:space="preserve">
-    <value>Set as active Configuration (Enter)</value>
+    <value>Set as active</value>
   </data>
   <data name="menuClearServerStatistics" xml:space="preserve">
     <value>Clear all service statistics</value>
   </data>
   <data name="menuRealPingServer" xml:space="preserve">
-    <value>Test Configurations real delay (Ctrl+R)</value>
+    <value>Test real delay</value>
   </data>
   <data name="menuSortServerResult" xml:space="preserve">
     <value>Sort by test result</value>
   </data>
   <data name="menuSpeedServer" xml:space="preserve">
-    <value>Test Configurations download speed (Ctrl+T)</value>
+    <value>Test download speed</value>
   </data>
   <data name="menuTcpingServer" xml:space="preserve">
-    <value>Test Configurations with tcping (Ctrl+O)</value>
+    <value>Test tcping</value>
   </data>
   <data name="menuExport2ClientConfig" xml:space="preserve">
-    <value>Export selected Configuration for complete configuration</value>
+    <value>Export selected for complete configuration</value>
   </data>
   <data name="menuExport2ShareUrl" xml:space="preserve">
-    <value>Export Share Link to Clipboard (Ctrl+C)</value>
+    <value>Export Share Link to Clipboard</value>
   </data>
   <data name="menuAddCustomServer" xml:space="preserve">
-    <value>Add a custom configuration Configuration</value>
+    <value>Add a custom configuration</value>
   </data>
   <data name="menuAddShadowsocksServer" xml:space="preserve">
-    <value>Add [Shadowsocks] Configuration</value>
+    <value>Add [Shadowsocks] </value>
   </data>
   <data name="menuAddSocksServer" xml:space="preserve">
-    <value>Add [SOCKS] Configuration</value>
+    <value>Add [SOCKS] </value>
   </data>
   <data name="menuAddTrojanServer" xml:space="preserve">
-    <value>Add [Trojan] Configuration</value>
+    <value>Add [Trojan] </value>
   </data>
   <data name="menuAddVlessServer" xml:space="preserve">
-    <value>Add [VLESS] Configuration</value>
+    <value>Add [VLESS] </value>
   </data>
   <data name="menuAddVmessServer" xml:space="preserve">
-    <value>Add [VMess] Configuration</value>
+    <value>Add [VMess] </value>
   </data>
   <data name="menuSelectAll" xml:space="preserve">
-    <value>Select all (Ctrl+A)</value>
+    <value>Select all</value>
   </data>
   <data name="menuMsgViewClear" xml:space="preserve">
     <value>Clear all</value>
   </data>
   <data name="menuMsgViewCopy" xml:space="preserve">
-    <value>Copy (Ctrl+C)</value>
+    <value>Copy</value>
   </data>
   <data name="menuMsgViewCopyAll" xml:space="preserve">
     <value>Copy all</value>
   </data>
   <data name="menuMsgViewSelectAll" xml:space="preserve">
-    <value>Select all (Ctrl+A)</value>
+    <value>Select all</value>
   </data>
   <data name="menuSubAdd" xml:space="preserve">
     <value>Add</value>
@@ -748,7 +748,7 @@
     <value>System proxy settings</value>
   </data>
   <data name="TbSettingsTrayMenuServersLimit" xml:space="preserve">
-    <value>Tray right-click menu Configurations display limit</value>
+    <value>Tray right-click menu display limit</value>
   </data>
   <data name="TbSettingsUdpEnabled" xml:space="preserve">
     <value>Enable UDP</value>
@@ -781,7 +781,7 @@
     <value>PAC mode</value>
   </data>
   <data name="menuShareServer" xml:space="preserve">
-    <value>Share Configuration (Ctrl+F)</value>
+    <value>Share</value>
   </data>
   <data name="menuRouting" xml:space="preserve">
     <value>Routing</value>
@@ -793,16 +793,16 @@
     <value>Run as Admin</value>
   </data>
   <data name="menuMoveBottom" xml:space="preserve">
-    <value>Move to bottom (B)</value>
+    <value>Move to bottom</value>
   </data>
   <data name="menuMoveDown" xml:space="preserve">
-    <value>Down (D)</value>
+    <value>Down</value>
   </data>
   <data name="menuMoveTop" xml:space="preserve">
-    <value>Move to top (T)</value>
+    <value>Move to top</value>
   </data>
   <data name="menuMoveUp" xml:space="preserve">
-    <value>Up (U)</value>
+    <value>Up</value>
   </data>
   <data name="MsgFilterTitle" xml:space="preserve">
     <value>Filter, supports regular expressions</value>
@@ -817,10 +817,10 @@
     <value>Import Rules</value>
   </data>
   <data name="menuRoutingAdvancedRemove" xml:space="preserve">
-    <value>Remove selected (Delete)</value>
+    <value>Remove selected</value>
   </data>
   <data name="menuRoutingAdvancedSetDefault" xml:space="preserve">
-    <value>Set as active rule (Enter)</value>
+    <value>Set as active rule</value>
   </data>
   <data name="TbdomainStrategy" xml:space="preserve">
     <value>Domain strategy</value>
@@ -853,7 +853,7 @@
     <value>Rule List</value>
   </data>
   <data name="menuRuleRemove" xml:space="preserve">
-    <value>Remove Rule (Delete)</value>
+    <value>Remove Rule</value>
   </data>
   <data name="menuRoutingRuleDetailsSetting" xml:space="preserve">
     <value>Routing Rule Details Setting</value>
@@ -922,7 +922,7 @@
     <value>Skip test</value>
   </data>
   <data name="menuEditServer" xml:space="preserve">
-    <value>Edit Configuration (Ctrl+D)</value>
+    <value>Edit </value>
   </data>
   <data name="TbSettingsDoubleClick2Activate" xml:space="preserve">
     <value>Double-clicking Configuration makes it active</value>
@@ -1036,7 +1036,7 @@
     <value>Domain</value>
   </data>
   <data name="menuAddHysteria2Server" xml:space="preserve">
-    <value>Add [Hysteria2] Configuration</value>
+    <value>Add [Hysteria2] </value>
   </data>
   <data name="TbSettingsHysteriaBandwidth" xml:space="preserve">
     <value>Hysteria Max bandwidth (Up/Down)</value>
@@ -1045,16 +1045,16 @@
     <value>Use System Hosts</value>
   </data>
   <data name="menuAddTuicServer" xml:space="preserve">
-    <value>Add [TUIC] Configuration</value>
+    <value>Add [TUIC] </value>
   </data>
   <data name="TbHeaderType8" xml:space="preserve">
     <value>Congestion control</value>
   </data>
   <data name="LvPrevProfile" xml:space="preserve">
-    <value>Previous proxy Configuration remarks</value>
+    <value>Previous proxy remarks</value>
   </data>
   <data name="LvNextProfile" xml:space="preserve">
-    <value>Next proxy Configuration remarks</value>
+    <value>Next proxy remarks</value>
   </data>
   <data name="LvPrevProfileTip" xml:space="preserve">
     <value>Please make sure the Configuration remarks exist and are unique</value>
@@ -1078,7 +1078,7 @@
     <value>Enable IPv6 Address</value>
   </data>
   <data name="menuAddWireguardServer" xml:space="preserve">
-    <value>Add [WireGuard] Configuration</value>
+    <value>Add [WireGuard] </value>
   </data>
   <data name="TbPrivateKey" xml:space="preserve">
     <value>Private Key</value>
@@ -1111,7 +1111,7 @@
     <value>*grpc Authority</value>
   </data>
   <data name="menuAddHttpServer" xml:space="preserve">
-    <value>Add [HTTP] Configuration</value>
+    <value>Add [HTTP]</value>
   </data>
   <data name="TbSettingsEnableFragmentTips" xml:space="preserve">
     <value>which conflicts with the group previous proxy</value>
@@ -1207,7 +1207,7 @@
     <value>Refresh Proxies</value>
   </data>
   <data name="menuProxiesSelectActivity" xml:space="preserve">
-    <value>Select active node (Enter)</value>
+    <value>Select active node</value>
   </data>
   <data name="TbSettingsDomainStrategy4Out" xml:space="preserve">
     <value>Default domain strategy for outbound</value>
@@ -1225,7 +1225,7 @@
     <value>Export Base64-encoded Share Links to Clipboard</value>
   </data>
   <data name="menuExport2ClientConfigClipboard" xml:space="preserve">
-    <value>Export selected Configuration for complete configuration to clipboard</value>
+    <value>Export selected for complete configuration to clipboard</value>
   </data>
   <data name="menuShowOrHideMainWindow" xml:space="preserve">
     <value>Show or hide the main window</value>
@@ -1381,22 +1381,22 @@
     <value>Generate Policy Group from Multiple Profiles</value>
   </data>
   <data name="menuGenGroupMultipleServerXrayRandom" xml:space="preserve">
-    <value>Multi-Configuration Random by Xray</value>
+    <value>Random by Xray</value>
   </data>
   <data name="menuGenGroupMultipleServerXrayRoundRobin" xml:space="preserve">
-    <value>Multi-Configuration RoundRobin by Xray</value>
+    <value>RoundRobin by Xray</value>
   </data>
   <data name="menuGenGroupMultipleServerXrayLeastPing" xml:space="preserve">
-    <value>Multi-Configuration LeastPing by Xray</value>
+    <value>LeastPing by Xray</value>
   </data>
   <data name="menuGenGroupMultipleServerXrayLeastLoad" xml:space="preserve">
-    <value>Multi-Configuration LeastLoad by Xray</value>
+    <value>LeastLoad by Xray</value>
   </data>
   <data name="menuGenGroupMultipleServerSingBoxLeastPing" xml:space="preserve">
-    <value>Multi-Configuration LeastPing by sing-box</value>
+    <value>LeastPing by sing-box</value>
   </data>
   <data name="menuExportConfig" xml:space="preserve">
-    <value>Export Configuration</value>
+    <value>Export</value>
   </data>
   <data name="TbSettingsIPAPIUrl" xml:space="preserve">
     <value>Current connection info test URL</value>
@@ -1411,7 +1411,7 @@
     <value>Mldsa65Verify</value>
   </data>
   <data name="menuAddAnytlsServer" xml:space="preserve">
-    <value>Add [Anytls] Configuration</value>
+    <value>Add [Anytls]</value>
   </data>
   <data name="TbRemoteDNS" xml:space="preserve">
     <value>Remote DNS</value>
@@ -1528,28 +1528,28 @@
     <value>Policy Group Type</value>
   </data>
   <data name="menuAddPolicyGroupServer" xml:space="preserve">
-    <value>Add Policy Group Configuration</value>
+    <value>Add Policy Group </value>
   </data>
   <data name="menuAddProxyChainServer" xml:space="preserve">
-    <value>Add Proxy Chain Configuration</value>
+    <value>Add Proxy Chain</value>
   </data>
   <data name="menuAddChildServer" xml:space="preserve">
-    <value>Add Child Configuration</value>
+    <value>Add Child </value>
   </data>
   <data name="menuRemoveChildServer" xml:space="preserve">
-    <value>Remove Child Configuration</value>
+    <value>Remove Child </value>
   </data>
   <data name="menuServerList" xml:space="preserve">
-    <value>Configuration List</value>
+    <value>Configuration item 1, Auto add from subscription group</value>
   </data>
   <data name="TbFallback" xml:space="preserve">
     <value>Fallback</value>
   </data>
   <data name="menuGenGroupMultipleServerSingBoxFallback" xml:space="preserve">
-    <value>Multi-Configuration Fallback by sing-box</value>
+    <value>Fallback by sing-box</value>
   </data>
   <data name="menuGenGroupMultipleServerXrayFallback" xml:space="preserve">
-    <value>Multi-Configuration Fallback by Xray</value>
+    <value>Fallback by Xray</value>
   </data>
   <data name="CoreNotSupportNetwork" xml:space="preserve">
     <value>Core '{0}' does not support network type '{1}'.</value>
@@ -1637,5 +1637,11 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   </data>
   <data name="TbSettingsMacOSShowInDock" xml:space="preserve">
     <value>macOS displays this in the Dock (requires restart)</value>
+  </data>
+  <data name="menuServerList2" xml:space="preserve">
+    <value>Configuration Item 2, Select and add from self-built</value>
+  </data>
+  <data name="AlpnMustContainHttp11ForWsTls" xml:space="preserve">
+    <value>ALPN must contain 'http/1.1' when using WebSocket with TLS.</value>
   </data>
 </root>
