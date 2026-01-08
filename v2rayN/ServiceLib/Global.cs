@@ -88,6 +88,7 @@ public class Global
     public const string SingboxLocalDNSTag = "local_local";
     public const string SingboxHostsDNSTag = "hosts_dns";
     public const string SingboxFakeDNSTag = "fake_dns";
+    public const string SingboxEchDNSTag = "ech_dns";
 
     public static readonly List<string> IEProxyProtocols =
     [
@@ -624,6 +625,13 @@ public class Global
             "geoip:ir",
             "geoip:ru",
             ""
+    ];
+
+    public static readonly List<string> EchForceQuerys =
+    [
+         "none",
+         "half",
+         "full",
     ];
 
     #endregion const
