@@ -26,11 +26,15 @@ public partial class CoreConfigSingboxService
             {
                 var rules = JsonUtils.Deserialize<List<RulesItem>>(routing.RuleSet) ?? [];
 
-                useDirectDns = rules?.LastOrDefault() is { } lastRule &&
-                                  lastRule.OutboundTag == Global.DirectTag &&
-                                  (lastRule.Port == "0-65535" ||
-                                   lastRule.Network == "tcp,udp" ||
-                                   lastRule.Ip?.Contains("0.0.0.0/0") == true);
+                if (rules?.LastOrDefault() is { } lastRule && lastRule.OutboundTag == Global.DirectTag)
+                {
+                    var noDomain = lastRule.Domain == null || lastRule.Domain.Count == 0;
+                    var noProcess = lastRule.Process == null || lastRule.Process.Count == 0;
+                    var isAnyIp = lastRule.Ip == null || lastRule.Ip.Count == 0 || lastRule.Ip.Contains("0.0.0.0/0");
+                    var isAnyPort = string.IsNullOrEmpty(lastRule.Port) || lastRule.Port == "0-65535";
+                    var isAnyNetwork = string.IsNullOrEmpty(lastRule.Network) || lastRule.Network == "tcp,udp";
+                    useDirectDns = noDomain && noProcess && isAnyIp && isAnyPort && isAnyNetwork;
+                }
             }
             _coreConfig.dns.final = useDirectDns ? Global.SingboxDirectDNSTag : Global.SingboxRemoteDNSTag;
             var simpleDnsItem = context.SimpleDnsItem;
@@ -89,7 +93,23 @@ public partial class CoreConfigSingboxService
 
         foreach (var kvp in Utils.ParseHostsToDictionary(simpleDnsItem.Hosts))
         {
-            hostsDns.predefined[kvp.Key] = kvp.Value.Where(Utils.IsIpAddress).ToList();
+            // only allow full match
+            // like example.com and full:example.com,
+            // but not domain:example.com, keyword:example.com or regex:example.com etc.
+            var testRule = new Rule4Sbox();
+            if (!ParseV2Domain(kvp.Key, testRule))
+            {
+                continue;
+            }
+            if (testRule.domain_keyword?.Count > 0 && !kvp.Key.Contains(':'))
+            {
+                testRule.domain = testRule.domain_keyword;
+                testRule.domain_keyword = null;
+            }
+            if (testRule.domain?.Count == 1)
+            {
+                hostsDns.predefined[testRule.domain.First()] = kvp.Value.Where(Utils.IsIpAddress).ToList();
+            }
         }
 
         foreach (var host in hostsDns.predefined)
@@ -144,15 +164,20 @@ public partial class CoreConfigSingboxService
         _coreConfig.dns ??= new Dns4Sbox();
         _coreConfig.dns.rules ??= [];
 
-        _coreConfig.dns.rules.AddRange(new[]
+        _coreConfig.dns.rules.Add(new() { ip_accept_any = true, server = Global.SingboxHostsDNSTag });
+
+        if (context.ProtectDomainList.Count > 0)
         {
-            new Rule4Sbox { ip_accept_any = true, server = Global.SingboxHostsDNSTag },
-            new Rule4Sbox
+            _coreConfig.dns.rules.Add(new()
             {
                 server = Global.SingboxDirectDNSTag,
                 strategy = Utils.DomainStrategy4Sbox(simpleDnsItem.Strategy4Freedom),
                 domain = context.ProtectDomainList.ToList(),
-            },
+            });
+        }
+
+        _coreConfig.dns.rules.AddRange(new[]
+        {
             new Rule4Sbox
             {
                 server = Global.SingboxRemoteDNSTag,
@@ -170,44 +195,65 @@ public partial class CoreConfigSingboxService
         foreach (var kvp in Utils.ParseHostsToDictionary(simpleDnsItem.Hosts))
         {
             var predefined = kvp.Value.First();
-            if (predefined.IsNullOrEmpty() || Utils.IsIpAddress(predefined))
+            if (predefined.IsNullOrEmpty())
             {
                 continue;
             }
-            if (predefined.StartsWith('#') && int.TryParse(predefined.AsSpan(1), out var rcode))
+            var rule = new Rule4Sbox()
             {
-                // xray syntactic sugar for predefined
-                // etc. #0 -> NOERROR
-                _coreConfig.dns.rules.Add(new()
-                {
-                    query_type = [1, 28],
-                    domain = [kvp.Key],
-                    action = "predefined",
-                    rcode = rcode switch
-                    {
-                        0 => "NOERROR",
-                        1 => "FORMERR",
-                        2 => "SERVFAIL",
-                        3 => "NXDOMAIN",
-                        4 => "NOTIMP",
-                        5 => "REFUSED",
-                        _ => "NOERROR",
-                    },
-                });
-                continue;
-            }
-            // CNAME record
-            Rule4Sbox rule = new()
-            {
-                query_type = [1, 28],
+                query_type = [1, 5, 28], // A, CNAME and AAAA
                 action = "predefined",
                 rcode = "NOERROR",
-                answer = [$"*. IN CNAME {predefined}."],
             };
-            if (ParseV2Domain(kvp.Key, rule))
+            if (!ParseV2Domain(kvp.Key, rule))
             {
-                _coreConfig.dns.rules.Add(rule);
+                continue;
             }
+            // see: https://xtls.github.io/en/config/dns.html#dnsobject
+            // The matching format (domain:, full:, etc.) is the same as the domain
+            // in the commonly used Routing System. The difference is that without a prefix,
+            // it defaults to using the full: prefix (similar to the common hosts file syntax).
+            if (rule.domain_keyword?.Count > 0 && !kvp.Key.Contains(':'))
+            {
+                rule.domain = rule.domain_keyword;
+                rule.domain_keyword = null;
+            }
+            // example.com #0 -> example.com with NOERROR
+            if (predefined.StartsWith('#') && int.TryParse(predefined.AsSpan(1), out var rcode))
+            {
+                rule.rcode = rcode switch
+                {
+                    0 => "NOERROR",
+                    1 => "FORMERR",
+                    2 => "SERVFAIL",
+                    3 => "NXDOMAIN",
+                    4 => "NOTIMP",
+                    5 => "REFUSED",
+                    _ => "NOERROR",
+                };
+            }
+            else if (Utils.IsDomain(predefined))
+            {
+                // example.com CNAME target.com -> example.com with CNAME target.com
+                rule.answer = new List<string> { $"*. IN CNAME {predefined}." };
+            }
+            else if (Utils.IsIpAddress(predefined) && (rule.domain?.Count ?? 0) == 0)
+            {
+                // not full match, but an IP address, treat it as predefined answer
+                if (Utils.IsIpv6(predefined))
+                {
+                    rule.answer = new List<string> { $"*. IN AAAA {predefined}" };
+                }
+                else
+                {
+                    rule.answer = new List<string> { $"*. IN A {predefined}" };
+                }
+            }
+            else
+            {
+                continue;
+            }
+            _coreConfig.dns.rules.Add(rule);
         }
 
         if (simpleDnsItem.BlockBindingQuery == true)
@@ -424,7 +470,11 @@ public partial class CoreConfigSingboxService
         localDnsServer.tag = tag;
 
         dns4Sbox.servers.Add(localDnsServer);
-        dns4Sbox.rules.Insert(0, BuildProtectDomainRule());
+        var protectDomainRule = BuildProtectDomainRule();
+        if (protectDomainRule != null)
+        {
+            dns4Sbox.rules.Insert(0, protectDomainRule);
+        }
 
         _coreConfig.dns = dns4Sbox;
     }
@@ -446,8 +496,12 @@ public partial class CoreConfigSingboxService
         _coreConfig.dns?.servers?.Add(localDnsServer);
     }
 
-    private Rule4Sbox BuildProtectDomainRule()
+    private Rule4Sbox? BuildProtectDomainRule()
     {
+        if (context.ProtectDomainList.Count == 0)
+        {
+            return null;
+        }
         return new()
         {
             server = Global.SingboxLocalDNSTag,

@@ -70,17 +70,35 @@ public partial class CoreConfigV2rayService
             dnsItem.serveStale = simpleDnsItem?.ServeStale is true ? true : null;
             dnsItem.enableParallelQuery = simpleDnsItem?.ParallelQuery is true ? true : null;
 
-            if (_coreConfig.routing.domainStrategy == Global.IPIfNonMatch)
+            // DNS routing
+            var directDnsTags = dnsItem.servers
+                .Select(server =>
+                {
+                    var tagNode = (server as JsonObject)?["tag"];
+                    return tagNode is JsonValue value && value.TryGetValue<string>(out var tag) ? tag : null;
+                })
+                .Where(tag => tag is not null && tag.StartsWith(Global.DirectDnsTag, StringComparison.Ordinal))
+                .Select(tag => tag!)
+                .ToList();
+            if (directDnsTags.Count > 0)
             {
-                // DNS routing
-                dnsItem.tag = Global.DnsTag;
-                _coreConfig.routing.rules.Add(new RulesItem4Ray
+                _coreConfig.routing.rules.Add(new()
                 {
                     type = "field",
-                    inboundTag = new List<string> { Global.DnsTag },
-                    outboundTag = Global.ProxyTag,
+                    inboundTag = directDnsTags,
+                    outboundTag = Global.DirectTag,
                 });
             }
+
+            var finalRule = BuildFinalRule();
+            dnsItem.tag = Global.DnsTag;
+            _coreConfig.routing.rules.Add(new()
+            {
+                type = "field",
+                inboundTag = [Global.DnsTag],
+                outboundTag = finalRule.outboundTag,
+                balancerTag = finalRule.balancerTag,
+            });
 
             _coreConfig.dns = dnsItem;
         }
@@ -93,45 +111,6 @@ public partial class CoreConfigV2rayService
     private void FillDnsServers(Dns4Ray dnsItem)
     {
         var simpleDNSItem = context.SimpleDnsItem;
-        static List<string> ParseDnsAddresses(string? dnsInput, string defaultAddress)
-        {
-            var addresses = dnsInput?.Split(dnsInput.Contains(',') ? ',' : ';')
-                .Select(addr => addr.Trim())
-                .Where(addr => !string.IsNullOrEmpty(addr))
-                .Select(addr => addr.StartsWith("dhcp", StringComparison.OrdinalIgnoreCase) ? "localhost" : addr)
-                .Distinct()
-                .ToList() ?? new List<string> { defaultAddress };
-            return addresses.Count > 0 ? addresses : new List<string> { defaultAddress };
-        }
-
-        static object? CreateDnsServer(string dnsAddress, List<string> domains, List<string>? expectedIPs = null)
-        {
-            var (domain, scheme, port, path) = Utils.ParseUrl(dnsAddress);
-            var domainFinal = dnsAddress;
-            int? portFinal = null;
-            if (scheme.IsNullOrEmpty() || scheme.StartsWith("udp", StringComparison.OrdinalIgnoreCase))
-            {
-                domainFinal = domain;
-                portFinal = port > 0 ? port : null;
-            }
-            else if (scheme.StartsWith("tcp", StringComparison.OrdinalIgnoreCase))
-            {
-                domainFinal = scheme + "://" + domain;
-                portFinal = port > 0 ? port : null;
-            }
-            var dnsServer = new DnsServer4Ray
-            {
-                address = domainFinal,
-                port = portFinal,
-                skipFallback = true,
-                domains = domains.Count > 0 ? domains : null,
-                expectedIPs = expectedIPs?.Count > 0 ? expectedIPs : null
-            };
-            return JsonUtils.SerializeToNode(dnsServer, new JsonSerializerOptions
-            {
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            });
-        }
 
         var directDNSAddress = ParseDnsAddresses(simpleDNSItem?.DirectDNS, Global.DomainDirectDNSAddress.First());
         var remoteDNSAddress = ParseDnsAddresses(simpleDNSItem?.RemoteDNS, Global.DomainRemoteDNSAddress.First());
@@ -252,35 +231,102 @@ public partial class CoreConfigV2rayService
 
         dnsItem.servers ??= [];
 
-        void AddDnsServers(List<string> dnsAddresses, List<string> domains, List<string>? expectedIPs = null)
-        {
-            if (domains.Count > 0)
-            {
-                foreach (var dnsAddress in dnsAddresses)
-                {
-                    dnsItem.servers.Add(CreateDnsServer(dnsAddress, domains, expectedIPs));
-                }
-            }
-        }
+        var directDnsTagIndex = 1;
 
         AddDnsServers(remoteDNSAddress, proxyDomainList);
-        AddDnsServers(directDNSAddress, directDomainList);
+        AddDnsServers(directDNSAddress, directDomainList, true);
         AddDnsServers(remoteDNSAddress, proxyGeositeList);
-        AddDnsServers(directDNSAddress, directGeositeList);
-        AddDnsServers(directDNSAddress, expectedDomainList, expectedIPs);
+        AddDnsServers(directDNSAddress, directGeositeList, true);
+        AddDnsServers(directDNSAddress, expectedDomainList, true, expectedIPs);
         if (dnsServerDomains.Count > 0)
         {
             AddDnsServers(bootstrapDNSAddress, dnsServerDomains);
         }
 
-        var useDirectDns = rules?.LastOrDefault() is { } lastRule
-            && lastRule.OutboundTag == Global.DirectTag
-            && (lastRule.Port == "0-65535"
-                || lastRule.Network == "tcp,udp"
-                || lastRule.Ip?.Contains("0.0.0.0/0") == true);
+        var useDirectDns = false;
 
-        var defaultDnsServers = useDirectDns ? directDNSAddress : remoteDNSAddress;
-        dnsItem.servers.AddRange(defaultDnsServers);
+        if (rules?.LastOrDefault() is { } lastRule && lastRule.OutboundTag == Global.DirectTag)
+        {
+            var noDomain = lastRule.Domain == null || lastRule.Domain.Count == 0;
+            var noProcess = lastRule.Process == null || lastRule.Process.Count == 0;
+            var isAnyIp = lastRule.Ip == null || lastRule.Ip.Count == 0 || lastRule.Ip.Contains("0.0.0.0/0");
+            var isAnyPort = string.IsNullOrEmpty(lastRule.Port) || lastRule.Port == "0-65535";
+            var isAnyNetwork = string.IsNullOrEmpty(lastRule.Network) || lastRule.Network == "tcp,udp";
+            useDirectDns = noDomain && noProcess && isAnyIp && isAnyPort && isAnyNetwork;
+        }
+
+        if (!useDirectDns)
+        {
+            dnsItem.servers.AddRange(remoteDNSAddress);
+        }
+        else
+        {
+            foreach (var dns in directDNSAddress)
+            {
+                var dnsServer = CreateDnsServer(dns, []);
+                dnsServer.tag = $"{Global.DirectDnsTag}-{directDnsTagIndex++}";
+                dnsServer.skipFallback = false;
+                dnsItem.servers.Add(JsonUtils.SerializeToNode(dnsServer,
+                    new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull }));
+            }
+        }
+        return;
+
+        static List<string> ParseDnsAddresses(string? dnsInput, string defaultAddress)
+        {
+            var addresses = dnsInput?.Split(dnsInput.Contains(',') ? ',' : ';')
+                .Select(addr => addr.Trim())
+                .Where(addr => !string.IsNullOrEmpty(addr))
+                .Select(addr => addr.StartsWith("dhcp", StringComparison.OrdinalIgnoreCase) ? "localhost" : addr)
+                .Distinct()
+                .ToList() ?? [defaultAddress];
+            return addresses.Count > 0 ? addresses : new List<string> { defaultAddress };
+        }
+
+        static DnsServer4Ray CreateDnsServer(string dnsAddress, List<string> domains, List<string>? expectedIPs = null)
+        {
+            var (domain, scheme, port, path) = Utils.ParseUrl(dnsAddress);
+            var domainFinal = dnsAddress;
+            int? portFinal = null;
+            if (scheme.IsNullOrEmpty() || scheme.StartsWith("udp", StringComparison.OrdinalIgnoreCase))
+            {
+                domainFinal = domain;
+                portFinal = port > 0 ? port : null;
+            }
+            else if (scheme.StartsWith("tcp", StringComparison.OrdinalIgnoreCase))
+            {
+                domainFinal = scheme + "://" + domain;
+                portFinal = port > 0 ? port : null;
+            }
+            var dnsServer = new DnsServer4Ray
+            {
+                address = domainFinal,
+                port = portFinal,
+                skipFallback = true,
+                domains = domains.Count > 0 ? domains : null,
+                expectedIPs = expectedIPs?.Count > 0 ? expectedIPs : null
+            };
+            return dnsServer;
+        }
+
+        void AddDnsServers(List<string> dnsAddresses, List<string> domains, bool isDirectDns = false, List<string>? expectedIPs = null)
+        {
+            if (domains.Count <= 0)
+            {
+                return;
+            }
+            foreach (var dnsAddress in dnsAddresses)
+            {
+                var dnsServer = CreateDnsServer(dnsAddress, domains, expectedIPs);
+                if (isDirectDns)
+                {
+                    dnsServer.tag = $"{Global.DirectDnsTag}-{directDnsTagIndex++}";
+                }
+                var dnsServerNode = JsonUtils.SerializeToNode(dnsServer,
+                    new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
+                dnsItem.servers.Add(dnsServerNode);
+            }
+        }
     }
 
     private void FillDnsHosts(Dns4Ray dnsItem)
@@ -391,7 +437,7 @@ public partial class CoreConfigV2rayService
 
             FillDnsDomainsCustom(obj);
 
-            _coreConfig.dns = JsonUtils.Deserialize<Dns4Ray>(JsonUtils.Serialize(obj));
+            _coreConfig.dns = obj;
         }
         catch (Exception ex)
         {

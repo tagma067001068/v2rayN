@@ -49,6 +49,7 @@ public class Global
     public const string DirectTag = "direct";
     public const string BlockTag = "block";
     public const string DnsTag = "dns-module";
+    public const string DirectDnsTag = "direct-dns";
     public const string BalancerTagSuffix = "-round";
     public const string StreamSecurity = "tls";
     public const string StreamSecurityReality = "reality";
@@ -89,6 +90,22 @@ public class Global
     public const string SingboxFakeDNSTag = "fake_dns";
 
     public const int Hysteria2DefaultHopInt = 10;
+
+    public const string PolicyGroupExcludeKeywords = @"剩余|过期|到期|重置|[Rr]emaining|[Ee]xpir|[Rr]eset";
+
+    public const string PolicyGroupDefaultAllFilter = $"^(?!.*(?:{PolicyGroupExcludeKeywords})).*$";
+
+    public static readonly List<string> PolicyGroupDefaultFilterList =
+    [
+        // All nodes (exclude traffic/expiry info)
+        PolicyGroupDefaultAllFilter,
+        // Low multiplier nodes, e.g. ×0.1, 0.5x, 0.1倍
+        @"^.*(?:[×xX✕*]\s*0\.[0-9]+|0\.[0-9]+\s*[×xX✕*倍]).*$",
+        // Dedicated line nodes, e.g. IPLC, IEPL
+        $@"^(?!.*(?:{PolicyGroupExcludeKeywords})).*(?:专线|IPLC|IEPL|中转).*$",
+        // Japan nodes
+        $@"^(?!.*(?:{PolicyGroupExcludeKeywords})).*(?:日本|\\b[Jj][Pp]\\b|🇯🇵|[Jj]apan).*$",
+    ];
 
     public static readonly List<string> IEProxyProtocols =
     [

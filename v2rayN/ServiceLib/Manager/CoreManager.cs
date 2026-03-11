@@ -57,26 +57,19 @@ public class CoreManager
         }
     }
 
-    public async Task LoadCore(ProfileItem? node)
+    /// <param name="mainContext">Resolved main context (with pre-socks ports already merged if applicable).</param>
+    /// <param name="preContext">Optional pre-socks context passed to <see cref="CoreStartPreService"/>.</param>
+    public async Task LoadCore(CoreConfigContext? mainContext, CoreConfigContext? preContext)
     {
-        if (node == null)
+        if (mainContext == null)
         {
             await UpdateFunc(false, ResUI.CheckServerSettings);
             return;
         }
 
+        var node = mainContext.Node;
         var fileName = Utils.GetBinConfigPath(Global.CoreConfigFileName);
-        var context = await CoreConfigHandler.BuildCoreConfigContext(_config, node);
-        var preContext = ConfigHandler.GetPreSocksCoreConfigContext(context);
-        if (preContext is not null)
-        {
-            context = context with
-            {
-                TunProtectSsPort = preContext.TunProtectSsPort,
-                ProxyRelaySsPort = preContext.ProxyRelaySsPort,
-            };
-        }
-        var result = await CoreConfigHandler.GenerateClientConfig(context, fileName);
+        var result = await CoreConfigHandler.GenerateClientConfig(mainContext, fileName);
         if (result.Success != true)
         {
             await UpdateFunc(true, result.Msg);
@@ -95,7 +88,7 @@ public class CoreManager
             await WindowsUtils.RemoveTunDevice();
         }
 
-        await CoreStart(context);
+        await CoreStart(mainContext);
         await CoreStartPreService(preContext);
         if (_processService != null)
         {
@@ -105,7 +98,7 @@ public class CoreManager
 
     public async Task<ProcessService?> LoadCoreConfigSpeedtest(List<ServerTestItem> selecteds)
     {
-        var coreType = selecteds.Any(t => Global.SingboxOnlyConfigType.Contains(t.ConfigType)) ? ECoreType.sing_box : ECoreType.Xray;
+        var coreType = selecteds.FirstOrDefault()?.CoreType == ECoreType.sing_box ? ECoreType.sing_box : ECoreType.Xray;
         var fileName = string.Format(Global.CoreSpeedtestConfigFileName, Utils.GetGuid(false));
         var configPath = Utils.GetBinConfigPath(fileName);
         var result = await CoreConfigHandler.GenerateClientSpeedtestConfig(_config, configPath, selecteds, coreType);
@@ -132,14 +125,14 @@ public class CoreManager
 
         var fileName = string.Format(Global.CoreSpeedtestConfigFileName, Utils.GetGuid(false));
         var configPath = Utils.GetBinConfigPath(fileName);
-        var context = await CoreConfigHandler.BuildCoreConfigContext(_config, node);
+        var (context, _) = await CoreConfigContextBuilder.Build(_config, node);
         var result = await CoreConfigHandler.GenerateClientSpeedtestConfig(_config, context, testItem, configPath);
         if (result.Success != true)
         {
             return null;
         }
 
-        var coreType = AppManager.Instance.GetCoreType(node, node.ConfigType);
+        var coreType = context.RunCoreType;
         var coreInfo = CoreInfoManager.Instance.GetCoreInfo(coreType);
         return await RunProcess(coreInfo, fileName, true, false);
     }

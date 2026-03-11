@@ -52,10 +52,10 @@ public class GroupProfileManager
                 return false;
             }
 
-            foreach (var child in childIds)
+            var childItems = await AppManager.Instance.GetProfileItemsByIndexIds(childIds);
+            foreach (var childItem in childItems)
             {
-                var childItem = await AppManager.Instance.GetProfileItem(child);
-                if (await HasCycle(child, childItem?.GetProtocolExtra(), visited, stack))
+                if (await HasCycle(childItem.IndexId, childItem?.GetProtocolExtra(), visited, stack))
                 {
                     return true;
                 }
@@ -103,26 +103,7 @@ public class GroupProfileManager
             return [];
         }
 
-        var childProfiles = await AppManager.Instance.GetProfileItemsByIndexIds(childProfileIds);
-        if (childProfiles == null || childProfiles.Count == 0)
-        {
-            return [];
-        }
-
-        var profileMap = childProfiles
-            .Where(p => p != null && !p.IndexId.IsNullOrEmpty())
-            .GroupBy(p => p!.IndexId!)
-            .ToDictionary(g => g.Key, g => g.First());
-
-        var ordered = new List<ProfileItem>(childProfileIds.Count);
-        foreach (var id in childProfileIds)
-        {
-            if (id != null && profileMap.TryGetValue(id, out var item) && item != null)
-            {
-                ordered.Add(item);
-            }
-        }
-
+        var ordered = await AppManager.Instance.GetProfileItemsOrderedByIndexIds(childProfileIds);
         return ordered;
     }
 
@@ -143,26 +124,27 @@ public class GroupProfileManager
             .ToList() ?? [];
     }
 
-    public static async Task<List<ProfileItem>> GetAllChildProfileItems(ProfileItem profileItem)
+    public static async Task<Dictionary<string, ProfileItem>> GetAllChildProfileItems(ProfileItem profileItem)
     {
-        var allChildItems = new List<ProfileItem>();
+        var itemMap = new Dictionary<string, ProfileItem>();
         var visited = new HashSet<string>();
 
-        await CollectChildItems(profileItem, allChildItems, visited);
+        await CollectChildItems(profileItem, itemMap, visited);
 
-        return allChildItems;
+        return itemMap;
     }
 
-    private static async Task CollectChildItems(ProfileItem profileItem, List<ProfileItem> allChildItems, HashSet<string> visited)
+    private static async Task CollectChildItems(ProfileItem profileItem, Dictionary<string, ProfileItem> itemMap,
+        HashSet<string> visited)
     {
         var (childItems, _) = await GetChildProfileItems(profileItem);
         foreach (var child in childItems.Where(child => visited.Add(child.IndexId)))
         {
-            allChildItems.Add(child);
+            itemMap[child.IndexId] = child;
 
             if (child.ConfigType.IsGroupType())
             {
-                await CollectChildItems(child, allChildItems, visited);
+                await CollectChildItems(child, itemMap, visited);
             }
         }
     }
