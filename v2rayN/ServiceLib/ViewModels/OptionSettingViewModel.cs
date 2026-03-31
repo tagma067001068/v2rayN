@@ -95,6 +95,8 @@ public class OptionSettingViewModel : MyReactiveObject
     [Reactive] public string TunStack { get; set; }
     [Reactive] public int TunMtu { get; set; }
     [Reactive] public bool TunEnableIPv6Address { get; set; }
+    [Reactive] public string TunIcmpRouting { get; set; }
+    [Reactive] public bool TunEnableLegacyProtect { get; set; }
 
     #endregion Tun mode
 
@@ -218,6 +220,8 @@ public class OptionSettingViewModel : MyReactiveObject
         TunStack = _config.TunModeItem.Stack;
         TunMtu = _config.TunModeItem.Mtu;
         TunEnableIPv6Address = _config.TunModeItem.EnableIPv6Address;
+        TunIcmpRouting = _config.TunModeItem.IcmpRouting;
+        TunEnableLegacyProtect = _config.TunModeItem.EnableLegacyProtect;
 
         #endregion Tun mode
 
@@ -376,6 +380,8 @@ public class OptionSettingViewModel : MyReactiveObject
         _config.TunModeItem.Stack = TunStack;
         _config.TunModeItem.Mtu = TunMtu;
         _config.TunModeItem.EnableIPv6Address = TunEnableIPv6Address;
+        _config.TunModeItem.IcmpRouting = TunIcmpRouting;
+        _config.TunModeItem.EnableLegacyProtect = TunEnableLegacyProtect;
 
         //coreType
         await SaveCoreType();
