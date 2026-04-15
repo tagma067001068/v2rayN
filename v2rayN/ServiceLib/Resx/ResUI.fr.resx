@@ -937,7 +937,7 @@
     <value>Agent utilisateur (User-Agent)</value>
   </data>
   <data name="TbSettingsDefUserAgentTips" xml:space="preserve">
-    <value>Valable uniquement pour les protocoles tcp/http et ws</value>
+    <value>This parameter is valid only for tcp/http, ws, gRPC and xhttp</value>
   </data>
   <data name="TbSettingsCurrentFontFamily" xml:space="preserve">
     <value>Police actuelle (redémarrage requis)</value>
@@ -1694,5 +1694,8 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   </data>
   <data name="TbLegacyProtect" xml:space="preserve">
     <value>Legacy TUN Protect</value>
+  </data>
+  <data name="TbSettingsSendThroughTip" xml:space="preserve">
+    <value>For multi-interface environments, enter the local machine's IPv4 address</value>
   </data>
 </root>

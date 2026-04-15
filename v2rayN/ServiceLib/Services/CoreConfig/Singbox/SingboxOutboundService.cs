@@ -345,14 +345,6 @@ public partial class CoreConfigSingboxService
     {
         try
         {
-            // The synthetic TUN relay outbound talks to the local Xray shadowsocks relay.
-            // Xray cannot terminate sing-box h2mux, so muxing here turns local relay traffic
-            // into sp.mux.sing-box.arpa pseudo-destinations and breaks DNS over TUN.
-            if (IsTunRelayProxyOutbound())
-            {
-                return;
-            }
-
             var muxEnabled = _node.MuxEnabled ?? _config.CoreBasicItem.MuxEnabled;
             if (muxEnabled && _config.Mux4SboxItem.Protocol.IsNotEmpty())
             {
@@ -370,21 +362,6 @@ public partial class CoreConfigSingboxService
         {
             Logging.SaveLog(_tag, ex);
         }
-    }
-
-    private bool IsTunRelayProxyOutbound()
-    {
-        if (!context.IsTunEnabled
-            || _node.ConfigType != EConfigType.Shadowsocks
-            || _node.Address != Global.Loopback
-            || _node.Port != context.ProxyRelaySsPort
-            || _node.Password != Global.None)
-        {
-            return false;
-        }
-
-        var protocolExtra = _node.GetProtocolExtra();
-        return protocolExtra.SsMethod == Global.None;
     }
 
     private void FillOutboundTls(Outbound4Sbox outbound)
@@ -461,6 +438,8 @@ public partial class CoreConfigSingboxService
         try
         {
             var transport = new Transport4Sbox();
+            var useragent = _config.CoreBasicItem.DefUserAgent ?? string.Empty;
+            var useragentValue = Global.TcpHttpUserAgentTexts.GetValueOrDefault(useragent, useragent);
 
             switch (_node.GetNetwork())
             {
@@ -476,6 +455,11 @@ public partial class CoreConfigSingboxService
                         transport.type = nameof(ETransport.http);
                         transport.host = _node.RequestHost.IsNullOrEmpty() ? null : Utils.String2List(_node.RequestHost);
                         transport.path = _node.Path.NullIfEmpty();
+                        if (!useragentValue.IsNullOrEmpty())
+                        {
+                            transport.headers ??= new();
+                            transport.headers.UserAgent = useragentValue;
+                        }
                     }
                     break;
 
@@ -517,12 +501,22 @@ public partial class CoreConfigSingboxService
                             Host = _node.RequestHost
                         };
                     }
+                    if (!useragentValue.IsNullOrEmpty())
+                    {
+                        transport.headers ??= new();
+                        transport.headers.UserAgent = useragentValue;
+                    }
                     break;
 
                 case nameof(ETransport.httpupgrade):
                     transport.type = nameof(ETransport.httpupgrade);
                     transport.path = _node.Path.NullIfEmpty();
                     transport.host = _node.RequestHost.NullIfEmpty();
+                    if (!useragentValue.IsNullOrEmpty())
+                    {
+                        transport.headers ??= new();
+                        transport.headers.UserAgent = useragentValue;
+                    }
 
                     break;
 
