@@ -2581,6 +2581,24 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
+        ///   查找类似 Allow insecure cert fetch (self-signed) 的本地化字符串。
+        /// </summary>
+        public static string TbAllowInsecureCertFetch {
+            get {
+                return ResourceManager.GetString("TbAllowInsecureCertFetch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Only for fetching self-signed certificates. This may expose you to MITM risks. 的本地化字符串。
+        /// </summary>
+        public static string TbAllowInsecureCertFetchTips {
+            get {
+                return ResourceManager.GetString("TbAllowInsecureCertFetchTips", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 ALPN 的本地化字符串。
         /// </summary>
         public static string TbAlpn {
@@ -2667,6 +2685,15 @@ namespace ServiceLib.Resx {
         public static string TbBrowse {
             get {
                 return ResourceManager.GetString("TbBrowse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Camouflage domain 的本地化字符串。
+        /// </summary>
+        public static string TbCamouflageDomain {
+            get {
+                return ResourceManager.GetString("TbCamouflageDomain", resourceCulture);
             }
         }
         
@@ -3088,6 +3115,15 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
+        ///   查找类似 Host 的本地化字符串。
+        /// </summary>
+        public static string TbHost {
+            get {
+                return ResourceManager.GetString("TbHost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 ICMP routing policy 的本地化字符串。
         /// </summary>
         public static string TbIcmpRoutingPolicy {
@@ -3390,15 +3426,6 @@ namespace ServiceLib.Resx {
         public static string TbRemoteResolveStrategyTips {
             get {
                 return ResourceManager.GetString("TbRemoteResolveStrategyTips", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Camouflage domain(host) 的本地化字符串。
-        /// </summary>
-        public static string TbRequestHost {
-            get {
-                return ResourceManager.GetString("TbRequestHost", resourceCulture);
             }
         }
         
@@ -3772,7 +3799,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 This parameter is valid only for tcp/http, ws, gRPC and xhttp 的本地化字符串。
+        ///   查找类似 This parameter is valid only for raw/http, ws, gRPC and xhttp 的本地化字符串。
         /// </summary>
         public static string TbSettingsDefUserAgentTips {
             get {
@@ -4654,7 +4681,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 *Default value tcp 的本地化字符串。
+        ///   查找类似 *Default value raw 的本地化字符串。
         /// </summary>
         public static string TipNetwork {
             get {
@@ -4672,7 +4699,16 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 XHTTP Extra raw JSON, format: { XHTTP Object } 的本地化字符串。
+        ///   查找类似 XHTTP Extra 的本地化字符串。
+        /// </summary>
+        public static string TransportExtra {
+            get {
+                return ResourceManager.GetString("TransportExtra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Raw JSON, format: { XHTTP Object } 的本地化字符串。
         /// </summary>
         public static string TransportExtraTip {
             get {
@@ -4681,47 +4717,47 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 *tcp camouflage type 的本地化字符串。
+        ///   查找类似 raw camouflage type 的本地化字符串。
         /// </summary>
-        public static string TransportHeaderTypeTip1 {
+        public static string TransportHeaderType1 {
             get {
-                return ResourceManager.GetString("TransportHeaderTypeTip1", resourceCulture);
+                return ResourceManager.GetString("TransportHeaderType1", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   查找类似 *kcp camouflage type 的本地化字符串。
+        ///   查找类似 kcp camouflage type 的本地化字符串。
         /// </summary>
-        public static string TransportHeaderTypeTip2 {
+        public static string TransportHeaderType2 {
             get {
-                return ResourceManager.GetString("TransportHeaderTypeTip2", resourceCulture);
+                return ResourceManager.GetString("TransportHeaderType2", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   查找类似 *QUIC camouflage type 的本地化字符串。
+        ///   查找类似 QUIC camouflage type 的本地化字符串。
         /// </summary>
-        public static string TransportHeaderTypeTip3 {
+        public static string TransportHeaderType3 {
             get {
-                return ResourceManager.GetString("TransportHeaderTypeTip3", resourceCulture);
+                return ResourceManager.GetString("TransportHeaderType3", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   查找类似 *grpc mode 的本地化字符串。
+        ///   查找类似 gRPC mode 的本地化字符串。
         /// </summary>
-        public static string TransportHeaderTypeTip4 {
+        public static string TransportHeaderType4 {
             get {
-                return ResourceManager.GetString("TransportHeaderTypeTip4", resourceCulture);
+                return ResourceManager.GetString("TransportHeaderType4", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   查找类似 *xhttp mode 的本地化字符串。
+        ///   查找类似 xhttp mode 的本地化字符串。
         /// </summary>
-        public static string TransportHeaderTypeTip5 {
+        public static string TransportHeaderType5 {
             get {
-                return ResourceManager.GetString("TransportHeaderTypeTip5", resourceCulture);
+                return ResourceManager.GetString("TransportHeaderType5", resourceCulture);
             }
         }
         
@@ -4753,7 +4789,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 *grpc service name 的本地化字符串。
+        ///   查找类似 gRPC service name 的本地化字符串。
         /// </summary>
         public static string TransportPathTip4 {
             get {
@@ -4807,7 +4843,7 @@ namespace ServiceLib.Resx {
         }
         
         /// <summary>
-        ///   查找类似 *grpc Authority 的本地化字符串。
+        ///   查找类似 gRPC Authority 的本地化字符串。
         /// </summary>
         public static string TransportRequestHostTip5 {
             get {
