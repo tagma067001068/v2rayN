@@ -68,10 +68,8 @@ public partial class OptionSettingWindow
             this.Bind(ViewModel, vm => vm.NewPort4LAN, v => v.txtpass.IsEnabled).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.User, v => v.txtuser.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.Pass, v => v.txtpass.Text).DisposeWith(disposables);
-            this.Bind(ViewModel, vm => vm.MuxEnabled, v => v.togmuxEnabled.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.LogEnabled, v => v.toglogEnabled.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.Loglevel, v => v.cmbloglevel.Text).DisposeWith(disposables);
-            this.Bind(ViewModel, vm => vm.DefAllowInsecure, v => v.togdefAllowInsecure.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.DefFingerprint, v => v.cmbdefFingerprint.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.DefUserAgent, v => v.cmbdefUserAgent.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.SendThrough, v => v.txtsendThrough.Text).DisposeWith(disposables);
@@ -81,6 +79,7 @@ public partial class OptionSettingWindow
             this.Bind(ViewModel, vm => vm.HyUpMbps, v => v.txtUpMbps.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.HyDownMbps, v => v.txtDownMbps.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.EnableFragment, v => v.togenableFragment.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.EnableFinalFragment, v => v.togenableFinalFragment.IsChecked).DisposeWith(disposables);
 
             //this.Bind(ViewModel, vm => vm.Kcpmtu, v => v.txtKcpmtu.Text).DisposeWith(disposables);
             //this.Bind(ViewModel, vm => vm.Kcptti, v => v.txtKcptti.Text).DisposeWith(disposables);
@@ -126,6 +125,7 @@ public partial class OptionSettingWindow
             this.Bind(ViewModel, vm => vm.TunEnableIPv6Address, v => v.togEnableIPv6Address.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.TunIcmpRouting, v => v.cmbIcmpRoutingPolicy.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.TunEnableLegacyProtect, v => v.togEnableLegacyProtect.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.TunRouteExcludeAddress, v => v.txtRouteExcludeAddress.Text).DisposeWith(disposables);
 
             this.Bind(ViewModel, vm => vm.CoreType1, v => v.cmbCoreType1.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.CoreType2, v => v.cmbCoreType2.Text).DisposeWith(disposables);

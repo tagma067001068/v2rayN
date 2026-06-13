@@ -144,13 +144,13 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
             AppEvents.ShutdownRequested
               .AsObservable()
               .ObserveOn(RxSchedulers.MainThreadScheduler)
-              .Subscribe(content => Shutdown(content))
+              .Subscribe(Shutdown)
               .DisposeWith(disposables);
 
             AppEvents.ShowHideWindowRequested
              .AsObservable()
              .ObserveOn(RxSchedulers.MainThreadScheduler)
-             .Subscribe(blShow => ShowHideWindow(blShow))
+             .Subscribe(ShowHideWindow)
              .DisposeWith(disposables);
         });
 
@@ -413,7 +413,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     public void ShowHideWindow(bool? blShow)
     {
         var bl = blShow ??
-                    (Utils.IsLinux()
+                    (Utils.IsLinux() || Utils.IsMacOS()
                     ? (!AppManager.Instance.ShowInTaskbar ^ (WindowState == WindowState.Minimized))
                     : !AppManager.Instance.ShowInTaskbar);
         if (bl)

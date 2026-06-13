@@ -93,6 +93,7 @@ public class Rule4Sbox
     public List<string>? wifi_bssid { get; set; }
     public bool? rule_set_ip_cidr_match_source { get; set; }
     public bool? rule_set_ip_cidr_accept_empty { get; set; }
+    public bool? tls_record_fragment { get; set; }
 }
 
 [Serializable]
@@ -110,6 +111,7 @@ public class Inbound4Sbox
     public bool? endpoint_independent_nat { get; set; }
     public string? stack { get; set; }
     public List<User4Sbox> users { get; set; }
+    public List<string>? route_exclude_address { get; set; }
 }
 
 public class User4Sbox
