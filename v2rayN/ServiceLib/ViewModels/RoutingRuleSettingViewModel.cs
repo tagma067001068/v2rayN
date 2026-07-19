@@ -1,7 +1,13 @@
 namespace ServiceLib.ViewModels;
 
-public class RoutingRuleSettingViewModel : MyReactiveObject
+public class RoutingRuleSettingViewModel : MyReactiveObject, ICloseable
 {
+    public event EventHandler? RequestClose;
+    public Interaction<string, bool> ShowYesNoInteraction { get; } = new();
+    public Interaction<string, Unit> SetClipboardDataInteraction { get; } = new();
+    public Interaction<Unit, string?> ReadTextFromClipboardInteraction { get; } = new();
+    public Interaction<Unit, string?> BrowseRulesFileInteraction { get; } = new();
+
     private List<RulesItem> _rules;
 
     [Reactive]
@@ -27,10 +33,9 @@ public class RoutingRuleSettingViewModel : MyReactiveObject
 
     public ReactiveCommand<Unit, Unit> SaveCmd { get; }
 
-    public RoutingRuleSettingViewModel(RoutingItem routingItem, Func<EViewAction, object?, Task<bool>>? updateView)
+    public RoutingRuleSettingViewModel(RoutingItem routingItem)
     {
         _config = AppManager.Instance.Config;
-        _updateView = updateView;
 
         var canEditRemove = this.WhenAnyValue(
             x => x.SelectedSource,
@@ -42,7 +47,8 @@ public class RoutingRuleSettingViewModel : MyReactiveObject
         });
         ImportRulesFromFileCmd = ReactiveCommand.CreateFromTask(async () =>
         {
-            await _updateView?.Invoke(EViewAction.ImportRulesFromFile, null);
+            var fileName = await BrowseRulesFileInteraction.Handle(Unit.Default);
+            await ImportRulesFromFileAsync(fileName);
         });
         ImportRulesFromClipboardCmd = ReactiveCommand.CreateFromTask(async () =>
         {
@@ -95,6 +101,7 @@ public class RoutingRuleSettingViewModel : MyReactiveObject
     {
         RulesItems.Clear();
 
+        var models = new List<RulesItemModel>();
         foreach (var item in _rules)
         {
             var it = new RulesItemModel()
@@ -110,8 +117,9 @@ public class RoutingRuleSettingViewModel : MyReactiveObject
                 Enabled = item.Enabled,
                 Remarks = item.Remarks,
             };
-            RulesItems.Add(it);
+            models.Add(it);
         }
+        RulesItems.AddRange(models);
     }
 
     public async Task RuleEditAsync(bool blNew)
@@ -129,7 +137,8 @@ public class RoutingRuleSettingViewModel : MyReactiveObject
                 return;
             }
         }
-        if (await _updateView?.Invoke(EViewAction.RoutingRuleDetailsWindow, item) == true)
+        var routingRuleDetailsViewModel = new RoutingRuleDetailsViewModel(item);
+        if (await AppManager.Instance.WindowDialog.ShowDialogAsync(routingRuleDetailsViewModel) == true)
         {
             if (blNew)
             {
@@ -146,7 +155,7 @@ public class RoutingRuleSettingViewModel : MyReactiveObject
             NoticeManager.Instance.Enqueue(ResUI.PleaseSelectRules);
             return;
         }
-        if (await _updateView?.Invoke(EViewAction.ShowYesNo, null) == false)
+        if (await ShowYesNoInteraction.Handle(ResUI.RemoveServer) == false)
         {
             return;
         }
@@ -189,7 +198,7 @@ public class RoutingRuleSettingViewModel : MyReactiveObject
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
-            await _updateView?.Invoke(EViewAction.SetClipboardData, JsonUtils.Serialize(lst, options));
+            await SetClipboardDataInteraction.Handle(JsonUtils.Serialize(lst, options));
         }
     }
 
@@ -232,7 +241,7 @@ public class RoutingRuleSettingViewModel : MyReactiveObject
         if (await ConfigHandler.SaveRoutingItem(_config, item) == 0)
         {
             NoticeManager.Instance.Enqueue(ResUI.OperationSuccess);
-            _updateView?.Invoke(EViewAction.CloseWindow, null);
+            RequestClose?.Invoke(this, EventArgs.Empty);
         }
         else
         {
@@ -264,12 +273,18 @@ public class RoutingRuleSettingViewModel : MyReactiveObject
 
     public async Task ImportRulesFromClipboardAsync(string? clipboardData)
     {
+        var stringData = clipboardData;
         if (clipboardData == null)
         {
-            await _updateView?.Invoke(EViewAction.ImportRulesFromClipboard, null);
-            return;
+            var result = await ReadTextFromClipboardInteraction.Handle(Unit.Default);
+            if (result.IsNullOrEmpty())
+            {
+                NoticeManager.Instance.Enqueue(ResUI.OperationFailed);
+                return;
+            }
+            stringData = result;
         }
-        var ret = await AddBatchRoutingRulesAsync(SelectedRouting, clipboardData);
+        var ret = await AddBatchRoutingRulesAsync(SelectedRouting, stringData);
         if (ret == 0)
         {
             RefreshRulesItems();
@@ -299,7 +314,7 @@ public class RoutingRuleSettingViewModel : MyReactiveObject
     private async Task<int> AddBatchRoutingRulesAsync(RoutingItem routingItem, string? clipboardData)
     {
         var blReplace = false;
-        if (await _updateView?.Invoke(EViewAction.AddBatchRoutingRulesYesNo, null) == false)
+        if (await ShowYesNoInteraction.Handle(ResUI.AddBatchRoutingRulesYesNo) == false)
         {
             blReplace = true;
         }

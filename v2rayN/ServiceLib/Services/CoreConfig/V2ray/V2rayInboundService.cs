@@ -74,6 +74,7 @@ public partial class CoreConfigV2rayService
                     tunInbound.settings.autoOutboundsInterface = bindInterface;
                 }
                 tunInbound.sniffing = inbound.sniffing;
+                tunInbound.sniffing.routeOnly = true;
 
                 if (_config.TunModeItem.RouteExcludeAddress is { Count: > 0 })
                 {
@@ -150,6 +151,16 @@ public partial class CoreConfigV2rayService
         inbound.sniffing.enabled = inItem.SniffingEnabled;
         inbound.sniffing.destOverride = inItem.DestOverride;
         inbound.sniffing.routeOnly = inItem.RouteOnly;
+
+        if (_config.SimpleDNSItem.FakeIP == true)
+        {
+            // Ensure destOverride contains "fakedns" if FakeIP is enabled
+            inbound.sniffing.destOverride ??= [];
+            if (!inbound.sniffing.destOverride.Contains("fakedns"))
+            {
+                inbound.sniffing.destOverride.Add("fakedns");
+            }
+        }
 
         return inbound;
     }

@@ -42,6 +42,11 @@ public class Global
     public const string KillAsSudoOSXShellFileName = NamespaceSample + "kill_as_sudo_osx_sh";
     public const string KillAsSudoLinuxShellFileName = NamespaceSample + "kill_as_sudo_linux_sh";
     public const string SingboxFakeIPFilterFileName = NamespaceSample + "singbox_fakeip_filter";
+    public const string ChromeRootCertFileName = NamespaceSample + "chrome_roots_pem";
+    public const string MozillaRootCertFileName = NamespaceSample + "mozilla_roots_pem";
+
+    public const string ChromeRootProvider = "chrome";
+    public const string MozillaRootProvider = "mozilla";
 
     public const string DefaultSecurity = "auto";
     public const string DefaultNetwork = "raw";
@@ -92,6 +97,7 @@ public class Global
     public const string LinuxBash = "/bin/bash";
     public const string StringTrue = "true";
     public const string StringFalse = "false";
+    public const int SqliteMaxBatchSize = 10000;
 
     public const string SingboxDirectDNSTag = "direct_dns";
     public const string SingboxRemoteDNSTag = "remote_dns";
@@ -209,6 +215,10 @@ public class Global
     };
 
     public const string Hysteria2ProtocolShare = "hy2://";
+
+    public const string Hysteria2RealmProtocolShare = "hysteria2+realm://";
+
+    public const string Hysteria2HttpRealmProtocolShare = "hysteria2+realm+http://";
 
     public const string NaiveHttpsProtocolShare = "naive+https://";
 
@@ -406,6 +416,16 @@ public class Global
         ""
     ];
 
+    public static readonly List<string> FragmentPacketsOptions =
+    [
+        "tlshello",
+        "1-1",
+        "1-2",
+        "1-3",
+        "1-4",
+        "1-5"
+    ];
+
     public static readonly List<string> UserAgent =
     [
         "chrome",
@@ -476,7 +496,8 @@ public class Global
         "fa",
         "fr",
         "ru",
-        "hu"
+        "hu",
+        "id"
     ];
 
     public static readonly List<string> Alpns =
@@ -536,7 +557,6 @@ public class Global
         "http",
         "tls",
         "quic",
-        "fakedns",
     ];
 
     public static readonly List<int> TunMtus =
@@ -666,6 +686,14 @@ public class Global
         "mcbe:bedrock.talonmc.net",
     ];
 
+    public static readonly List<string> DefaultRealmStunList =
+    [
+        "turn.cloudflare.com:3478",
+        "stun.nextcloud.com:3478",
+        "stun.sip.us:3478",
+        "global.stun.twilio.com:3478",
+    ];
+
     public static readonly List<string> OutboundTags =
     [
         ProxyTag,
@@ -706,6 +734,19 @@ public class Global
         "unreachable",
         "drop",
         "reply",
+    ];
+
+    public static readonly List<string> FakeIPRanges =
+    [
+        "198.18.0.0/15",
+        "11.0.0.0/8",
+    ];
+
+    public static readonly List<string> RootCertProviders =
+    [
+        "system",
+        ChromeRootProvider,
+        MozillaRootProvider,
     ];
 
     #endregion const

@@ -1,7 +1,9 @@
 namespace ServiceLib.ViewModels;
 
-public class AddServerViewModel : MyReactiveObject
+public class AddServerViewModel : MyReactiveObject, ICloseable
 {
+    public event EventHandler? RequestClose;
+
     [Reactive]
     public ProfileItem SelectedSource { get; set; }
 
@@ -22,9 +24,6 @@ public class AddServerViewModel : MyReactiveObject
 
     [Reactive]
     public string CertSha { get; set; }
-
-    [Reactive]
-    public bool AllowInsecureCertFetch { get; set; }
 
     [Reactive]
     public string SalamanderPass { get; set; }
@@ -82,6 +81,18 @@ public class AddServerViewModel : MyReactiveObject
 
     [Reactive]
     public bool NaiveQuic { get; set; }
+
+    [Reactive]
+    public string HttpHeadersJson { get; set; }
+
+    [Reactive]
+    public string Hy2RealmUrl { get; set; }
+
+    [Reactive]
+    public int GeckoMinPacketSize { get; set; }
+
+    [Reactive]
+    public int GeckoMaxPacketSize { get; set; }
 
     [Reactive]
     public string RawHeaderType { get; set; }
@@ -232,10 +243,9 @@ public class AddServerViewModel : MyReactiveObject
     public ReactiveCommand<Unit, Unit> FetchCertChainCmd { get; }
     public ReactiveCommand<Unit, Unit> SaveCmd { get; }
 
-    public AddServerViewModel(ProfileItem profileItem, Func<EViewAction, object?, Task<bool>>? updateView)
+    public AddServerViewModel(ProfileItem profileItem)
     {
         _config = AppManager.Instance.Config;
-        _updateView = updateView;
 
         FetchCertCmd = ReactiveCommand.CreateFromTask(async () =>
         {
@@ -249,7 +259,6 @@ public class AddServerViewModel : MyReactiveObject
         {
             await SaveServerAsync();
         });
-
         this.WhenAnyValue(x => x.Cert)
             .Subscribe(_ => UpdateCertTip());
 
@@ -305,6 +314,10 @@ public class AddServerViewModel : MyReactiveObject
         CongestionControl = protocolExtra.CongestionControl ?? string.Empty;
         InsecureConcurrency = protocolExtra.InsecureConcurrency > 0 ? protocolExtra.InsecureConcurrency : null;
         NaiveQuic = protocolExtra.NaiveQuic ?? false;
+        HttpHeadersJson = protocolExtra.HttpHeaders ?? string.Empty;
+        Hy2RealmUrl = protocolExtra.Hy2RealmUrl ?? string.Empty;
+        GeckoMinPacketSize = protocolExtra.GeckoMinPacketSize.ToInt();
+        GeckoMaxPacketSize = protocolExtra.GeckoMaxPacketSize.ToInt();
 
         RawHeaderType = transport.RawHeaderType ?? Global.None;
         Host = transport.Host ?? string.Empty;
@@ -360,6 +373,21 @@ public class AddServerViewModel : MyReactiveObject
                 return;
             }
         }
+        HyRealm? realm = null;
+        if (!Hy2RealmUrl.IsNullOrEmpty())
+        {
+            var realmResult = HyRealm.TryParse(Hy2RealmUrl, out realm);
+            if (!realmResult)
+            {
+                NoticeManager.Instance.Enqueue(ResUI.InvalidHy2RealmUrl);
+                return;
+            }
+        }
+        if (HttpHeadersJson.IsNotEmpty() && JsonUtils.ParseJson(HttpHeadersJson) == null)
+        {
+            NoticeManager.Instance.Enqueue(ResUI.InvalidHttpOutboundHeaders);
+            return;
+        }
         SelectedSource.CoreType = CoreType.IsNullOrEmpty() ? null : Enum.Parse<ECoreType>(CoreType);
         SelectedSource.AllowInsecure = AllowInsecure ? Global.StringTrue : Global.StringFalse;
         SelectedSource.MuxEnabled = MuxEnabled;
@@ -397,6 +425,7 @@ public class AddServerViewModel : MyReactiveObject
             VmessSecurity = VmessSecurity.NullIfEmpty(),
             VlessEncryption = VlessEncryption.NullIfEmpty(),
             SsMethod = SsMethod.NullIfEmpty(),
+            HttpHeaders = SelectedSource.ConfigType == EConfigType.HTTP ? HttpHeadersJson.NullIfEmpty() : null,
             WgPublicKey = WgPublicKey.NullIfEmpty(),
             WgPresharedKey = WgPresharedKey.NullIfEmpty(),
             WgInterfaceAddress = WgInterfaceAddress.NullIfEmpty(),
@@ -406,13 +435,16 @@ public class AddServerViewModel : MyReactiveObject
             CongestionControl = CongestionControl.NullIfEmpty(),
             InsecureConcurrency = InsecureConcurrency > 0 ? InsecureConcurrency : null,
             NaiveQuic = NaiveQuic ? true : null,
+            Hy2RealmUrl = realm?.ToUri().NullIfEmpty(),
+            GeckoMinPacketSize = GeckoMinPacketSize > 0 ? GeckoMinPacketSize.ToString() : null,
+            GeckoMaxPacketSize = GeckoMaxPacketSize > 0 ? GeckoMaxPacketSize.ToString() : null,
         });
         SelectedSource.SetTransportExtra(transport);
 
         if (await ConfigHandler.AddServer(_config, SelectedSource) == 0)
         {
             NoticeManager.Instance.Enqueue(ResUI.OperationSuccess);
-            _updateView?.Invoke(EViewAction.CloseWindow, null);
+            RequestClose?.Invoke(this, EventArgs.Empty);
         }
         else
         {
@@ -475,8 +507,7 @@ public class AddServerViewModel : MyReactiveObject
         }
 
         (Cert, var certError) = await CertPemManager.Instance.GetCertPemAsync(domain, serverName,
-            verifyPeerCertByName: Utils.String2List(SelectedSource.VerifyPeerCertByName),
-            allowInsecure: AllowInsecureCertFetch);
+            verifyPeerCertByName: Utils.String2List(SelectedSource.VerifyPeerCertByName));
         UpdateCertTip(certError);
     }
 
@@ -502,8 +533,7 @@ public class AddServerViewModel : MyReactiveObject
         }
 
         var (certs, certError) = await CertPemManager.Instance.GetCertChainPemAsync(domain, serverName,
-            verifyPeerCertByName: Utils.String2List(SelectedSource.VerifyPeerCertByName),
-            allowInsecure: AllowInsecureCertFetch);
+            verifyPeerCertByName: Utils.String2List(SelectedSource.VerifyPeerCertByName));
         Cert = CertPemManager.ConcatenatePemChain(certs);
         UpdateCertTip(certError);
     }

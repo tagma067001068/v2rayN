@@ -33,10 +33,9 @@ public class ClashProxiesViewModel : MyReactiveObject
     [Reactive]
     public bool AutoRefresh { get; set; }
 
-    public ClashProxiesViewModel(Func<EViewAction, object?, Task<bool>>? updateView)
+    public ClashProxiesViewModel()
     {
         _config = AppManager.Instance.Config;
-        _updateView = updateView;
 
         ProxiesReloadCmd = ReactiveCommand.CreateFromTask(async () =>
         {
@@ -85,15 +84,6 @@ public class ClashProxiesViewModel : MyReactiveObject
             .Subscribe(c => { _config.ClashUIItem.ProxiesAutoRefresh = AutoRefresh; });
 
         #endregion WhenAnyValue && ReactiveCommand
-
-        #region AppEvents
-
-        AppEvents.ProxiesReloadRequested
-            .AsObservable()
-            .ObserveOn(RxSchedulers.MainThreadScheduler)
-            .Subscribe(async _ => await ProxiesReload());
-
-        #endregion AppEvents
 
         _ = Init();
     }
@@ -187,6 +177,7 @@ public class ClashProxiesViewModel : MyReactiveObject
         var selectedName = SelectedGroup?.Name;
         ProxyGroups.Clear();
 
+        var lstProxyGroups = new List<ClashProxyModel>();
         var proxyGroups = ClashApiManager.Instance.GetClashProxyGroups();
         if (proxyGroups is { Count: > 0 })
         {
@@ -200,7 +191,7 @@ public class ClashProxiesViewModel : MyReactiveObject
                 {
                     continue;
                 }
-                ProxyGroups.Add(new ClashProxyModel()
+                lstProxyGroups.Add(new ClashProxyModel()
                 {
                     Now = item.now,
                     Name = item.name,
@@ -216,18 +207,20 @@ public class ClashProxiesViewModel : MyReactiveObject
             {
                 continue;
             }
-            var item = ProxyGroups.FirstOrDefault(t => t.Name == kv.Key);
+            var item = lstProxyGroups.FirstOrDefault(t => t.Name == kv.Key);
             if (item != null && item.Name.IsNotEmpty())
             {
                 continue;
             }
-            ProxyGroups.Add(new ClashProxyModel()
+            lstProxyGroups.Add(new ClashProxyModel()
             {
                 Now = kv.Value.now,
                 Name = kv.Key,
                 Type = kv.Value.type
             });
         }
+
+        ProxyGroups.AddRange(lstProxyGroups);
 
         if (ProxyGroups is { Count: > 0 })
         {

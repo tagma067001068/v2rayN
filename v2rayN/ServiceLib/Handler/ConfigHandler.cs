@@ -95,6 +95,10 @@ public static class ConfigHandler
             EnableLegacyProtect = false,
         };
         config.GuiItem ??= new();
+        if (!Global.RootCertProviders.Contains(config.GuiItem.RootCertProvider))
+        {
+            config.GuiItem.RootCertProvider = Global.RootCertProviders.First();
+        }
         config.MsgUIItem ??= new();
 
         config.UiItem ??= new();
@@ -111,10 +115,12 @@ public static class ConfigHandler
         config.ConstItem ??= new ConstItem();
 
         config.SimpleDNSItem ??= InitBuiltinSimpleDNS();
+        config.SimpleDNSItem.FakeIPRange ??= Global.FakeIPRanges.FirstOrDefault();
         config.SimpleDNSItem.GlobalFakeIp ??= true;
         config.SimpleDNSItem.BootstrapDNS ??= Global.DomainPureIPDNSAddress.FirstOrDefault();
         config.SimpleDNSItem.ServeStale ??= false;
         config.SimpleDNSItem.ParallelQuery ??= false;
+        config.SimpleDNSItem.EnableHappyEyeballs ??= false;
 
         config.SpeedTestItem ??= new();
         if (config.SpeedTestItem.SpeedTestTimeout < 10)
@@ -164,9 +170,24 @@ public static class ConfigHandler
         config.Fragment4RayItem ??= new()
         {
             Packets = "tlshello",
-            Length = "50-100",
-            Interval = "10-20"
         };
+        config.Fragment4RayItem.MaxSplit ??= "0";
+
+        config.HappyEyeballs4RayItem ??= new()
+        {
+            TryDelayMs = 250,
+            PrioritizeIPv6 = false,
+            Interleave = 1,
+            MaxConcurrentTry = 4,
+        };
+        if ((config.Fragment4RayItem.Lengths ?? []).Count == 0)
+        {
+            config.Fragment4RayItem.Lengths = [config.Fragment4RayItem.Length ?? "50-100"];
+        }
+        if ((config.Fragment4RayItem.Delays ?? []).Count == 0)
+        {
+            config.Fragment4RayItem.Delays = [config.Fragment4RayItem.Interval ?? "10-20"];
+        }
         config.GlobalHotkeys ??= [];
 
         if (config.SystemProxyItem.SystemProxyExceptions.IsNullOrEmpty())
@@ -720,11 +741,50 @@ public static class ConfigHandler
         {
             return -1;
         }
-        profileItem.SetProtocolExtra(profileItem.GetProtocolExtra() with
+        var protocolExtra = profileItem.GetProtocolExtra();
+        profileItem.SetProtocolExtra(protocolExtra with
         {
-            SalamanderPass = profileItem.GetProtocolExtra().SalamanderPass?.TrimEx(),
-            HopInterval = profileItem.GetProtocolExtra().HopInterval?.TrimEx(),
+            SalamanderPass = protocolExtra.SalamanderPass?.TrimEx(),
+            HopInterval = protocolExtra.HopInterval?.TrimEx(),
         });
+
+        if (!protocolExtra.Hy2RealmUrl.IsNullOrEmpty())
+        {
+            var realmResult = HyRealm.TryParse(protocolExtra.Hy2RealmUrl, out var realm);
+            if (!realmResult || realm is null)
+            {
+                return -1;
+            }
+            if (realm.StunList.Count == 0)
+            {
+                realm = realm with
+                {
+                    StunList = Global.DefaultRealmStunList,
+                };
+            }
+            profileItem.SetProtocolExtra(profileItem.GetProtocolExtra() with
+            {
+                Hy2RealmUrl = realm.ToUri(),
+            });
+        }
+        var isGecko = !protocolExtra.GeckoMinPacketSize.IsNullOrEmpty() || !protocolExtra.GeckoMaxPacketSize.IsNullOrEmpty();
+        if (isGecko)
+        {
+            var minPacketSize = protocolExtra.GeckoMinPacketSize.ToInt();
+            var maxPacketSize = protocolExtra.GeckoMaxPacketSize.ToInt();
+            if (minPacketSize <= 0
+                || minPacketSize > maxPacketSize
+                || maxPacketSize > 2048)
+            {
+                minPacketSize = 512;
+                maxPacketSize = 1200;
+            }
+            profileItem.SetProtocolExtra(profileItem.GetProtocolExtra() with
+            {
+                GeckoMinPacketSize = minPacketSize.ToString(),
+                GeckoMaxPacketSize = maxPacketSize.ToString(),
+            });
+        }
 
         await AddServerCommon(config, profileItem, toFile);
 
@@ -1450,8 +1510,7 @@ public static class ConfigHandler
     public static ProfileItem? GetPreSocksItem(Config config, ProfileItem node, ECoreType coreType)
     {
         ProfileItem? itemSocks = null;
-        var enableLegacyProtect = config.TunModeItem.EnableLegacyProtect
-                                  || Utils.IsNonWindows();
+        var enableLegacyProtect = config.TunModeItem.EnableLegacyProtect;
         if (node.ConfigType != EConfigType.Custom
             && coreType != ECoreType.sing_box
             && config.TunModeItem.EnableTun
@@ -1468,7 +1527,8 @@ public static class ConfigHandler
         else if (node.ConfigType == EConfigType.Custom
             && node.PreSocksPort is > 0 and <= 65535)
         {
-            var preCoreType = config.TunModeItem.EnableTun ? ECoreType.sing_box : ECoreType.Xray;
+            var customPreCoreType = AppManager.Instance.GetCoreType(null, EConfigType.Custom);
+            var preCoreType = (enableLegacyProtect && config.TunModeItem.EnableTun) ? ECoreType.sing_box : customPreCoreType;
             itemSocks = new ProfileItem()
             {
                 CoreType = preCoreType,
