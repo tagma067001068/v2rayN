@@ -172,6 +172,8 @@ public class Outboundsettings4Ray
     public int? workers { get; set; }
 
     public int? version { get; set; }
+
+    public List<string>? remoteDNS { get; set; }
 }
 
 public class WireguardPeer4Ray
@@ -241,6 +243,7 @@ public class Dns4Ray
     public List<object> servers { get; set; }
     public bool? serveStale { get; set; }
     public bool? enableParallelQuery { get; set; }
+    public string? queryStrategy { get; set; }
     public string? tag { get; set; }
 }
 

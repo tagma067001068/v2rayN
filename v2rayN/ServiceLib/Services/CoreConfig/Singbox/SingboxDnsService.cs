@@ -282,11 +282,21 @@ public partial class CoreConfigSingboxService
                     {
                         query_type = [1, 28], // A and AAAA
                     },
-                    fakeipFilterRule
-                ]
+                    fakeipFilterRule,
+                ],
             };
 
             _coreConfig.dns.rules.Add(rule4Fake);
+        }
+
+        if (simpleDnsItem.BlockAAAAQuery == true)
+        {
+            _coreConfig.dns.rules.Add(new()
+            {
+                query_type = [28],
+                action = "predefined",
+                rcode = "NOERROR",
+            });
         }
 
         var routing = context.RoutingItem;
@@ -296,8 +306,8 @@ public partial class CoreConfigSingboxService
         }
 
         var rules = JsonUtils.Deserialize<List<RulesItem>>(routing.RuleSet) ?? [];
-        var expectedIPCidr = new List<string>();
-        var expectedIPsRegions = new List<string>();
+        var expectedIPCidr = new HashSet<string>();
+        var expectedIPsRegions = new HashSet<string>();
         var regionName = string.Empty;
 
         if (!string.IsNullOrEmpty(simpleDnsItem?.DirectExpectedIPs))
@@ -306,7 +316,7 @@ public partial class CoreConfigSingboxService
                 .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(s => s.Trim())
                 .Where(s => !string.IsNullOrEmpty(s))
-                .ToList();
+                .ToHashSet();
 
             foreach (var ip in ipItems)
             {
@@ -364,11 +374,11 @@ public partial class CoreConfigSingboxService
                         rule4ExpectedIPs.geosite = regionGeosite;
                         if (expectedIPsRegions.Count > 0)
                         {
-                            rule4ExpectedIPs.geoip = expectedIPsRegions;
+                            rule4ExpectedIPs.geoip = expectedIPsRegions.ToList();
                         }
                         if (expectedIPCidr.Count > 0)
                         {
-                            rule4ExpectedIPs.ip_cidr = expectedIPCidr;
+                            rule4ExpectedIPs.ip_cidr = expectedIPCidr.ToList();
                         }
                         _coreConfig.dns.rules.Add(rule4ExpectedIPs);
                     }
